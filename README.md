@@ -1,6 +1,6 @@
-# سفنز درايف — Sevens Drive
+# سفنز درايف — SE SheetsAI
 
-نظام إدارة الملفات والمستندات الداخلي مع تحرير عبر OnlyOffice، نسخ، مشاركة، وحوكمة.
+نظام إدارة الملفات والمستندات مع تحرير إكسل عبر OnlyOffice.
 
 ## التشغيل المحلي (النظام الكامل من نفس المسار)
 
@@ -12,28 +12,16 @@ docker compose -f docker-compose.full-stack.yml up -d
 
 التطبيق: http://localhost:5000
 
-راجع [RUN-FULL-STACK.md](RUN-FULL-STACK.md) للتفاصيل.
-
 ## المتطلبات
 
-- Python 3.11+
-- Docker (للمحرر OnlyOffice والتشغيل الكامل)
-- ملف `.env` (انظر `.env.example`)
+- Docker Desktop
+- Python 3.11+ (للتشغيل بدون Docker)
 
-## رفع المشروع إلى GitHub
+## هيكل المشروع
 
-1. أنشئ مستودعاً جديداً على GitHub: https://github.com/new  
-   الاسم: `se_sheetsai` — **لا تضف** README أو .gitignore (المشروع جاهز للرفع).
+- `app.py` — تطبيق Flask الرئيسي
+- `modules/` — الوحدات (الملفات، الصلاحيات، OnlyOffice، BI، إلخ)
+- `templates/` — قوالب الواجهات
+- `static/` — الملفات الثابتة والشعار
 
-2. نفّذ من PowerShell:
-```powershell
-cd C:\py\se_sheetsai
-.\scripts\push-to-github.ps1
-```
-
-أو يدوياً:
-```powershell
-git push -u origin main
-```
-
-(تسجيل الدخول عبر Git Credential Manager أو Personal Access Token عند الطلب.)
+راجع `RUN-FULL-STACK.md` لتشغيل النظام الكامل من المسار المحلي.
