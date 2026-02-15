@@ -91,8 +91,35 @@ APP_RUN_ID = datetime.now().strftime("%Y%m%d%H%M%S")
 
 # ================= INIT =================
 init_db()
-from modules.sync_excel_users import sync_users_from_excel
-sync_users_from_excel()
+
+# مزامنة المستخدمين من Excel تُنفَّذ مرة واحدة فقط (بقفل ملف) لتجنب database is locked مع عدة workers
+_excel_sync_done = False
+
+def _run_excel_sync_once():
+    global _excel_sync_done
+    if _excel_sync_done:
+        return
+    import tempfile
+    lock_path = os.path.join(tempfile.gettempdir(), "se_sheetsai_excel_sync.lock")
+    try:
+        fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+    except FileExistsError:
+        _excel_sync_done = True
+        return
+    try:
+        from modules.sync_excel_users import sync_users_from_excel
+        sync_users_from_excel()
+    except Exception as e:
+        logging.warning("sync_users_from_excel: %s", e)
+    finally:
+        try:
+            os.close(fd)
+        except Exception:
+            pass
+        # نترك ملف القفل دون حذف حتى لا يعيد worker آخر المزامنة
+    _excel_sync_done = True
+
+_run_excel_sync_once()
 
 # ================= HELPERS =================
 
