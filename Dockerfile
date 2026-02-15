@@ -26,5 +26,5 @@ RUN mkdir -p sheets uploads versions archive logs data state
 ENV PYTHONUNBUFFERED=1
 EXPOSE 5000
 
-# Gunicorn: bind 0.0.0.0 for Docker, 4 workers (tune per droplet size)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--threads", "2", "--timeout", "120", "app:app"]
+# Gunicorn: يستمع على PORT (مطلوب لـ Render وبيئات السحابة)
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "app:app"]
