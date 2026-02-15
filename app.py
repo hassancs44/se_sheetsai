@@ -1112,7 +1112,7 @@ def _build_editor_config_for_file(file_id, f, access, session):
             "mode": mode,
             "lang": "ar",
             "callbackUrl": f"{BASE_URL}/onlyoffice/callback",
-            "user": {"id": session["user"], "name": session["name"]},
+            "user": {"id": session["user"], "name": (session.get("name") or session.get("user") or "")},
             "customization": {"download": False, "print": False, "about": False, "help": False}
         }
     }
@@ -1196,71 +1196,107 @@ def open_editor(file_id):
     if not require_login():
         return redirect(url_for("login"))
 
-    db = get_db()
-    f = db.execute(
-        "SELECT * FROM files WHERE file_id = ?",
-        (file_id,)
-    ).fetchone()
-    db.close()
+    try:
+        db = get_db()
+        f = db.execute(
+            "SELECT * FROM files WHERE file_id = ?",
+            (file_id,)
+        ).fetchone()
+        db.close()
 
-    if not f:
-        abort(404)
+        if not f:
+            abort(404)
 
-    access = resolve_item_access("file", file_id, session["user"], session["department"])
-    if not access.get("allowed"):
-        expired = find_expired_share_access("file", file_id, session["user"], session["department"])
-        if expired:
-            log_share_expired(session["user"], request, "file", file_id, context=expired)
-        else:
-            log_share_denied(session["user"], request, "file", file_id, access.get("reason", "no_permission"))
-        abort(403)
+        access = resolve_item_access("file", file_id, session["user"], session["department"])
+        if not access.get("allowed"):
+            expired = find_expired_share_access("file", file_id, session["user"], session["department"])
+            if expired:
+                log_share_expired(session["user"], request, "file", file_id, context=expired)
+            else:
+                log_share_denied(session["user"], request, "file", file_id, access.get("reason", "no_permission"))
+            abort(403)
 
-    f = dict(f)
-    config = _build_editor_config_for_file(file_id, f, access, session)
+        f = dict(f)
+        # عند عدم وجود OnlyOffice (مثل Render المجاني): عرض صفحة توضيحية بدل كسر الصفحة
+        if not (ONLYOFFICE_SERVER or "").strip():
+            return render_template(
+                "sheet_editor.html",
+                sheet_name=f.get("name") or file_id,
+                onlyoffice_server="",
+                config=None,
+                watermark_text="",
+                file_id=file_id,
+                file_dashboard=None,
+                folder_id=f.get("folder_id"),
+                can_access_bi=can_access_bi(),
+                initial_last_saved_at=f.get("updated_at") or "",
+                editor_unavailable=True,
+            )
 
-    if access.get("owner") != session["user"]:
-        log_share_access(session["user"], request, "file", file_id, context={
-            "role": access.get("role"),
-            "scope": access.get("share", {}).get("scope"),
-            "expires_at": access.get("share", {}).get("expires_at"),
-            "target_type": access.get("share", {}).get("target_type"),
-            "target_value": access.get("share", {}).get("target_value")
+        try:
+            config = _build_editor_config_for_file(file_id, f, access, session)
+        except Exception as cfg_err:
+            logging.warning("_build_editor_config_for_file %s: %s", file_id, cfg_err)
+            return render_template(
+                "sheet_editor.html",
+                sheet_name=f.get("name") or file_id,
+                onlyoffice_server=ONLYOFFICE_SERVER or "",
+                config=None,
+                watermark_text="",
+                file_id=file_id,
+                file_dashboard=None,
+                folder_id=f.get("folder_id"),
+                can_access_bi=can_access_bi(),
+                initial_last_saved_at=f.get("updated_at") or "",
+                editor_unavailable=True,
+            )
+
+        if access.get("owner") != session["user"]:
+            log_share_access(session["user"], request, "file", file_id, context={
+                "role": access.get("role"),
+                "scope": access.get("share", {}).get("scope"),
+                "expires_at": access.get("share", {}).get("expires_at"),
+                "target_type": access.get("share", {}).get("target_type"),
+                "target_value": access.get("share", {}).get("target_value")
+            })
+
+        add_file_participant(file_id, session["user"])
+        log_event("file_opened", session["user"], request, item_type="file", item_id=file_id, item_name=f.get("name", ""), context={
+            "role": access.get("role")
         })
-
-    add_file_participant(file_id, session["user"])
-    log_event("file_opened", session["user"], request, item_type="file", item_id=file_id, item_name=f["name"], context={
-        "role": access.get("role")
-    })
-    watermark_text = f"{session['user']} | {f['name']}" if WATERMARK_ENABLED else ""
-    # Linked BI dashboard for this file (if any)
-    db = get_db()
-    row = db.execute(
-        "SELECT internal_id, title FROM bi_dashboards WHERE linked_file_id = ?",
-        (file_id,),
-    ).fetchone()
-    db.close()
-    file_dashboard = None
-    if row:
-        row = dict(row)
-        if can_user_view_bi_dashboard(
-            session["user"],
-            row["internal_id"],
-            department=session.get("department"),
-            role=session.get("role"),
-        ):
-            file_dashboard = row
-    return render_template(
-        "sheet_editor.html",
-        sheet_name=f["name"],
-        onlyoffice_server=ONLYOFFICE_SERVER,
-        config=config,
-        watermark_text=watermark_text,
-        file_id=file_id,
-        file_dashboard=file_dashboard,
-        folder_id=dict(f).get("folder_id"),
-        can_access_bi=can_access_bi(),
-        initial_last_saved_at=f.get("updated_at") or "",
-    )
+        watermark_text = f"{session.get('user', '')} | {f.get('name', '')}" if WATERMARK_ENABLED else ""
+        db = get_db()
+        row = db.execute(
+            "SELECT internal_id, title FROM bi_dashboards WHERE linked_file_id = ?",
+            (file_id,),
+        ).fetchone()
+        db.close()
+        file_dashboard = None
+        if row:
+            row = dict(row)
+            if can_user_view_bi_dashboard(
+                session["user"],
+                row["internal_id"],
+                department=session.get("department"),
+                role=session.get("role"),
+            ):
+                file_dashboard = row
+        return render_template(
+            "sheet_editor.html",
+            sheet_name=f.get("name", ""),
+            onlyoffice_server=ONLYOFFICE_SERVER,
+            config=config,
+            watermark_text=watermark_text,
+            file_id=file_id,
+            file_dashboard=file_dashboard,
+            folder_id=f.get("folder_id"),
+            can_access_bi=can_access_bi(),
+            initial_last_saved_at=f.get("updated_at") or "",
+            editor_unavailable=False,
+        )
+    except Exception as e:
+        logging.exception("open_editor %s: %s", file_id, e)
+        raise
 
 @app.route("/files/<sheet_id>.xlsx")
 def serve_excel(sheet_id):

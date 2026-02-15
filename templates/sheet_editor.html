@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
+{% if onlyoffice_server and not editor_unavailable %}
 <script src="{{ onlyoffice_server }}/web-apps/apps/api/documents/api.js"></script>
+{% endif %}
 <style>
 :root{
   --bg:#F3F6FB;
@@ -141,13 +143,22 @@ button[data-action="save-as"],button[data-action="export"],
   </div>
 
   <div class="editor-wrap">
+    {% if editor_unavailable | default(false) %}
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:var(--muted);">
+        <p style="font-size:18px;font-weight:700;color:var(--ink);margin:0 0 12px;">التحرير غير متاح على هذا السيرفر</p>
+        <p style="margin:0 0 16px;">لم يتم تكوين خادم OnlyOffice. يمكنك عرض الملفات والتنقل في الأقراص.</p>
+        <a href="{{ url_for('preview', file_id=file_id) }}" class="btn-link" style="display:inline-block;padding:10px 16px;">معاينة الملف</a>
+      </div>
+    {% else %}
     {% if watermark_text %}
       <div class="watermark">{{ watermark_text }}</div>
     {% endif %}
     <div id="editor"></div>
+    {% endif %}
   </div>
 </div>
 
+{% if not editor_unavailable and config %}
 <script>
   const editorConfig = {{ config | tojson | safe }};
   const EDITOR_FILE_ID = {{ file_id | tojson }};
@@ -262,4 +273,5 @@ button[data-action="save-as"],button[data-action="export"],
   }, true);
   waitForPendingSaveBeforeInit().then(initEditor);
 </script>
+{% endif %}
 {% endblock %}
