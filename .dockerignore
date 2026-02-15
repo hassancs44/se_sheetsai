@@ -12,32 +12,20 @@ __pycache__
 .idea
 .vscode
 
-# Local data and secrets (do not bake into image)
+# Environment secrets
 .env
 .env.*
 !.env.example
 !.env.production.example
-*.db
-database.db
-database_runtime.db
-bi_runtime.db
-sheets/
-uploads/
-versions/
-archive/
-logs/
-data/
 
-# Docs and scripts (optional: remove if you want them in image)
+# Docs and scripts (optional)
 docs/
 scripts/
 *.md
 !README.md
 
-# Docker
-Dockerfile*
+# Docker config
 docker-compose*.yml
-.dockerignore
 
 # OS
 .DS_Store
