@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='bi/ui/bi-ui.css') }}">
+<div class="bi-studio-wrap bi-dashboard-wrap" data-bi-theme="{{ theme_mode | default('light') }}" dir="rtl">
+  <div class="bi-toolbar">
+    <a href="{{ url_for('bi_index') }}" class="bi-link" style="font-weight:800;">← لوحات BI</a>
+    <a href="{{ url_for('bi_dashboard_view', internal_id=internal_id) }}" class="bi-link">عرض اللوحة</a>
+    <a href="{{ url_for('dashboard') }}" class="bi-text-muted" style="text-decoration:none;">الأقراص</a>
+    <a href="{{ url_for('bi_admin') }}" class="bi-text-muted" style="text-decoration:none;">إدارة BI</a>
+    <span class="bi-title">{{ studio_title }}</span>
+    <button type="button" id="bi-studio-save" class="bi-btn bi-btn-primary" style="margin-right: auto;">حفظ</button>
+  </div>
+  <div class="bi-studio-main">
+    <div class="bi-studio-canvas">
+      <div class="bi-grid" id="bi-studio-grid">
+        {% for w in widgets %}
+        <div class="bi-grid-item bi-widget bi-card" data-widget-id="{{ w.widget_id or w.id }}" data-type="{{ w.type or 'kpi' }}">
+          <div class="bi-widget-title">{{ w.title or w.widget_id }}</div>
+          <div class="bi-widget-body"><span class="bi-text-muted">{{ w.type or 'kpi' }}</span></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="bi-studio-panel">
+      <div class="bi-studio-panel-tabs">
+        <button type="button" class="bi-studio-panel-tab active" data-tab="data">📊 البيانات</button>
+        <button type="button" class="bi-studio-panel-tab" data-tab="style">🎨 النمط</button>
+        <button type="button" class="bi-studio-panel-tab" data-tab="interaction">🔍 التفاعل</button>
+      </div>
+      <div id="bi-panel-data" class="bi-panel-content">
+        <div class="bi-panel-section">
+          <h4>مجموعة البيانات</h4>
+          <select id="bi-dataset-select" class="bi-select">
+            <option value="">اختر مجموعة البيانات</option>
+            {% for ds in datasets %}
+            <option value="{{ ds.output_table_name or ds.table_name or '' }}">{{ ds.name or ds.output_table_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="bi-panel-section">
+          <h4>عنوان العنصر</h4>
+          <input type="text" id="bi-widget-title" class="bi-input" placeholder="عنوان العنصر">
+        </div>
+        <div class="bi-panel-section">
+          <h4>نوع التصور</h4>
+          <select id="bi-widget-type" class="bi-select">
+            <option value="kpi">KPI</option>
+            <option value="table">جدول</option>
+            <option value="bar">شريطي</option>
+            <option value="horizontalbar">شريطي أفقي</option>
+            <option value="line">خطي</option>
+            <option value="area">منطقة</option>
+            <option value="pie">دائري</option>
+            <option value="doughnut">دونات</option>
+            <option value="radar">رادار</option>
+            <option value="polararea">قطبي</option>
+            <option value="scatter">مبعثر</option>
+            <option value="bubble">فقاعات</option>
+            <option value="combo">شريطي + خط</option>
+          </select>
+        </div>
+        <div class="bi-panel-section">
+          <h4>البُعد (عمود تسمية)</h4>
+          <select id="bi-query-dimension" class="bi-select">
+            <option value="">— اختر العمود —</option>
+          </select>
+        </div>
+        <div class="bi-panel-section">
+          <h4>مقياس (عمود + تجميع)</h4>
+          <select id="bi-query-measure-col" class="bi-select">
+            <option value="">— اختر العمود —</option>
+          </select>
+          <select id="bi-query-measure-agg" class="bi-select" style="margin-top:4px;">
+            <option value="sum">مجموع</option>
+            <option value="avg">متوسط</option>
+            <option value="count">عدد</option>
+            <option value="min">أدنى</option>
+            <option value="max">أعلى</option>
+          </select>
+        </div>
+        <div class="bi-panel-section">
+          <label>الحد الأقصى للصفوف</label>
+          <input type="number" id="bi-query-limit" class="bi-input" value="100" min="1" max="10000">
+        </div>
+        <button type="button" id="bi-add-widget" class="bi-btn bi-btn-primary" style="width:100%;">إضافة عنصر</button>
+        <p class="bi-text-muted" style="margin-top:0.5rem; font-size:0.85rem;">انقر على عنصر في اللوحة لتعديل بياناته أو نمطه.</p>
+      </div>
+      <div id="bi-panel-style" class="bi-panel-content" style="display:none;">
+        <div class="bi-panel-section">
+          <h4>مظهر اللوحة</h4>
+          <label class="bi-text-muted">السمة / القالب الجاهز</label>
+          <select id="bi-theme-mode" class="bi-select">
+            <option value="light" {{ 'selected' if theme_mode == 'light' else '' }}>فاتح</option>
+            <option value="dark" {{ 'selected' if theme_mode == 'dark' else '' }}>داكن</option>
+          </select>
+          <select id="bi-theme-preset" class="bi-select" style="margin-top:6px;">
+            <option value="">— قالب جاهز —</option>
+          </select>
+        </div>
+        <div class="bi-panel-section">
+          <h4>حفظ كقالب</h4>
+          <input type="text" id="bi-template-name" class="bi-input" placeholder="اسم القالب">
+          <button type="button" id="bi-save-template-btn" class="bi-btn bi-btn-secondary" style="margin-top:6px; width:100%;">حفظ كقالب</button>
+        </div>
+        <div class="bi-panel-section">
+          <h4>سجل الإصدارات</h4>
+          <select id="bi-version-select" class="bi-select">
+            <option value="">— اختر إصدارًا للعودة —</option>
+          </select>
+          <button type="button" id="bi-rollback-btn" class="bi-btn bi-btn-secondary" style="margin-top:6px;">استعادة</button>
+        </div>
+        <div class="bi-panel-section bi-panel-widget-style" style="display:none;">
+          <h4>نمط العنصر المحدد</h4>
+          <label>لون أساسي</label>
+          <input type="color" id="bi-style-primary" class="bi-input" value="#2563eb" style="height:32px; padding:2px;">
+          <label style="display:block; margin-top:6px;">ألوان التخطيط (مفصولة بفاصلة)</label>
+          <input type="text" id="bi-style-colors" class="bi-input" placeholder="#2563eb, #16a34a, #d97706">
+          <label style="display:block; margin-top:6px;">نصف قطر الزوايا</label>
+          <input type="number" id="bi-style-radius" class="bi-input" value="8" min="0" max="24">
+          <label style="display:block; margin-top:6px;">خط النص</label>
+          <select id="bi-style-font" class="bi-select">
+            <option value="">افتراضي</option>
+            <option value="'Segoe UI', Tahoma">Segoe UI</option>
+            <option value="Arial">Arial</option>
+            <option value="'Cairo', sans-serif">Cairo</option>
+          </select>
+          <label style="display:block; margin-top:8px;">
+            <input type="checkbox" id="bi-style-gradient"> تدرج لوني
+          </label>
+          <label style="display:block;">
+            <input type="checkbox" id="bi-style-shadow"> ظل
+          </label>
+          <label style="display:block;">
+            <input type="checkbox" id="bi-style-legend" checked> إظهار وسيلة الإيضاح
+          </label>
+        </div>
+      </div>
+      <div id="bi-panel-interaction" class="bi-panel-content" style="display:none;">
+        <div class="bi-panel-section">
+          <h4>التفاعل</h4>
+          <div class="bi-panel-widget-style" style="display:none;">
+            <label><input type="checkbox" id="bi-interaction-drill"> تفعيل التنقل التفصيلي (نافذة تفاصيل)</label>
+            <label style="display:block; margin-top:6px;"><input type="checkbox" id="bi-interaction-crossfilter"> تفعيل التصفية المشتركة</label>
+            <label style="display:block; margin-top:6px;">تحديث تلقائي (ثوانٍ)</label>
+            <input type="number" id="bi-interaction-refresh" class="bi-input" value="0" min="0" placeholder="0 = لا">
+            <p class="bi-text-muted" style="font-size:0.85rem; margin-top:0.5rem;">التصفية المشتركة: النقر على عنصر يصفّي بقية اللوحة.</p>
+          </div>
+          <p class="bi-text-muted bi-no-widget-msg" style="font-size:0.85rem;">اختر عنصراً من اللوحة لتعديل التفاعل.</p>
+        </div>
+      </div>
+      <p style="margin-top:1rem;" class="bi-text-muted"><small>بعد التعديل اضغط «حفظ».</small></p>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='bi/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='bi/studio.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof BIStudio !== 'undefined') {
+      BIStudio.init({
+        dashboardId: '{{ internal_id }}',
+        widgets: {{ widgets | tojson | safe }},
+        datasets: {{ datasets | tojson | safe }},
+        saveUrl: '{{ url_for("bi_studio_save", internal_id=internal_id) }}',
+        versionsUrl: '{{ url_for("bi_dashboard_versions", internal_id=internal_id) }}',
+        rollbackUrl: '{{ url_for("bi_dashboard_rollback", internal_id=internal_id) }}',
+        templateSaveUrl: '{{ url_for("bi_template_save") }}'
+      });
+    }
+  });
+</script>
+{% endblock %}

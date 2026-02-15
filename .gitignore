@@ -1,0 +1,36 @@
+# Local env
+.env
+.env.local
+*.db
+database.db
+database_runtime.db
+bi_runtime.db
+
+# بيانات المشروع (تحت C:\py\se_sheetsai)
+state/
+sheets/
+uploads/
+versions/
+archive/
+logs/
+data/
+postgres_data/
+onlyoffice_data/
+onlyoffice_logs/
+
+# Python
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+
+# IDE
+.idea
+.vscode
+.cursor
+
+# OS
+.DS_Store
+Thumbs.db

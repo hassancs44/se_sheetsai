@@ -1,0 +1,44 @@
+# Git and IDE
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.cursor
+.idea
+.vscode
+
+# Local data and secrets (do not bake into image)
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.db
+database.db
+database_runtime.db
+bi_runtime.db
+sheets/
+uploads/
+versions/
+archive/
+logs/
+data/
+
+# Docs and scripts (optional: remove if you want them in image)
+docs/
+scripts/
+*.md
+!README.md
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

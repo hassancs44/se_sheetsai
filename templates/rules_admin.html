@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدارة القواعد | سفنز درايف</title>
+<style>
+body{font-family:system-ui,Segoe UI,Arial;margin:0;background:#F6FAFF;color:#0B1220;min-height:100vh}
+.app-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E5EAF3}
+.app-bar .brand-logo{width:36px;height:36px;object-fit:contain;border-radius:8px}
+.app-bar h2{margin:0;font-size:1.1rem}
+.wrap{max-width:1100px;margin:22px auto;padding:0 18px;width:100%}
+.panel{background:#fff;border:1px solid #E5EAF3;border-radius:14px;padding:14px;margin-bottom:14px;overflow-x:auto}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+label{display:block;font-size:12px;color:#64748B;margin-bottom:6px}
+input,textarea{width:100%;max-width:100%;padding:10px 12px;border:1px solid #E5EAF3;border-radius:12px}
+.btn{padding:10px 12px;border-radius:12px;border:1px solid #E5EAF3;background:#2F6AFF;color:#fff;font-weight:900}
+table{width:100%;border-collapse:collapse;min-width:400px}
+th,td{padding:10px;border-bottom:1px solid #E5EAF3;font-size:12px;text-align:right}
+@media (max-width:768px){ .wrap{padding:0 12px} .app-bar{padding:10px 12px} .row{flex-direction:column} }
+@media (min-width:1400px){ .wrap{max-width:1200px} }
+</style>
+</head>
+<body>
+<div class="app-bar">
+  <img src="/static/7s.jpg" alt="سفنز درايف" class="brand-logo">
+  <h2>إدارة القواعد | سفنز درايف</h2>
+</div>
+<div class="wrap">
+  <div class="panel">
+    <h3 style="margin:0 0 10px">إضافة قاعدة</h3>
+    <form method="POST">
+      <div class="row">
+        <div style="flex:1">
+          <label>الاسم</label>
+          <input name="name" required>
+        </div>
+        <div style="width:120px">
+          <label>الأولوية</label>
+          <input name="priority" type="number" value="0">
+        </div>
+        <div style="width:160px">
+          <label>الحالة</label>
+          <input name="is_enabled" value="1">
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>المحفّز</label>
+          <input name="trigger" placeholder="file_created / file_updated">
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1">
+          <label>الشروط (JSON)</label>
+          <textarea name="conditions_json" rows="3">{}</textarea>
+        </div>
+        <div style="flex:1">
+          <label>الإجراءات (JSON)</label>
+          <textarea name="actions_json" rows="3">[]</textarea>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn" type="submit">حفظ</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin:0 0 10px">القواعد الحالية</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>التفعيل</th>
+          <th>الأولوية</th>
+          <th>المحفّز</th>
+          <th>تاريخ الإنشاء</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rules %}
+        <tr>
+          <td>{{ r.name }}</td>
+          <td>{{ r.is_enabled }}</td>
+          <td>{{ r.priority }}</td>
+          <td>{{ r.trigger }}</td>
+          <td>{{ r.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:14px"><a href="{{ url_for('dashboard') }}">← العودة إلى الأقراص</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+:root{
+  --bg:#F6FAFF;
+  --card:#ffffff;
+  --ink:#0B1220;
+  --muted:#64748B;
+  --line:#E5EAF3;
+  --brand:#2F6AFF;
+  --brand2:#1f56d9;
+  --ok:#16A34A;
+  --warn:#F59E0B;
+  --danger:#E11D48;
+  --radius:16px;
+  --shadow:0 10px 25px rgba(2,6,23,.08);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Arial;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+.app{display:flex; min-height:100vh;}
+
+.sidebar{
+  width:280px;
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:16px;
+}
+
+.brand{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px;
+}
+.brand h2{margin:0; font-size:16px;}
+.badge{
+  font-size:12px; color:var(--brand2);
+  background:#EEF3FF; padding:6px 10px; border-radius:999px; font-weight:900;
+}
+
+.nav{margin-top:10px;}
+.nav a{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:900;
+  margin-bottom:6px;
+  color:var(--ink);
+  text-decoration:none;
+}
+.nav a:hover{background:#EEF3FF}
+
+.main{flex:1; padding:24px;}
+.top{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:18px;
+}
+.top .title h1{margin:0; font-size:18px;}
+.top .title p{margin:6px 0 0; color:var(--muted); font-size:13px;}
+
+.actions{display:flex; gap:10px; align-items:center;}
+.btn{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.btn.primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:#fff;
+  border:none;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+  gap:14px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+
+.card h3{margin:0; font-size:15px;}
+.card p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.6;}
+
+.meta{
+  display:flex; gap:10px; flex-wrap:wrap;
+  margin-top:12px;
+}
+.pill{
+  font-size:12px; padding:6px 10px;
+  background:#F3F6FF;
+  border:1px solid #E6ECFF;
+  border-radius:999px;
+  color:#243B7B;
+  font-weight:900;
+}
+
+.card .go{
+  margin-top:14px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.link{
+  text-decoration:none;
+  font-weight:1000;
+  color:var(--brand2);
+}
+.small{color:var(--muted); font-size:12px;}
+
+.footer{
+  margin-top:18px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+}
+</style>
+<div class="app">
+
+  <main class="main">
+    <div class="top">
+      <div class="title">
+        <h1>قائمة لوحات البيانات</h1>
+        <p>بوابة تنفيذية للعرض فقط — لا إنشاء ولا تعديل.</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn" href="{{ url_for('dashboard') }}">← العودة إلى الأقراص</a>
+        <a class="btn primary" href="{{ url_for('data_panel_home') }}">البوابة</a>
+        {% if can_access_bi %}
+        <a class="btn gray" href="{{ url_for('bi_index') }}">لوحات BI</a>
+        {% endif %}
+        <a class="btn gray" href="{{ url_for('logout') }}">تسجيل الخروج</a>
+      </div>
+    </div>
+
+    <h2 style="font-size:16px; margin:24px 0 12px;">لوحات BI (Metabase)</h2>
+    <p style="color:var(--muted); font-size:13px; margin:0 0 14px;">لوحات Metabase المضمّنة — افتح داخل التطبيق. لا واجهة Studio — Metabase فقط.</p>
+    {% if dashboards %}
+    <div class="grid">
+      {% for d in dashboards %}
+      <div class="card">
+        <h3>{{ d.title or d.internal_id }}</h3>
+        <div class="meta">
+          <span class="pill">المعرّف: {{ d.internal_id }}</span>
+          {% if d.linked_file_id %}<span class="pill">ملف: {{ d.linked_file_id }}</span>{% endif %}
+          {% if d.linked_folder_id %}<span class="pill">مجلد: {{ d.linked_folder_id }}</span>{% endif %}
+        </div>
+        <div class="go">
+          <a class="link" href="{{ url_for('bi_open_s2', internal_id=d.internal_id) }}">فتح اللوحة ←</a>
+          <span class="small">{{ d.created_at or '' }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">لا توجد لوحات متاحة. أنشئ لوحة من ملف (زر «إنشاء لوحة بيانات» في الملف) أو سجّلها من <a href="{{ url_for('bi_admin') }}">إعداد BI</a>.</p>
+    {% endif %}
+
+  </main>
+</div>
+{% endblock %}

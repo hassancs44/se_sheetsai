@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    :root{
+      --bg:#F6FAFF;
+      --card:#ffffff;
+      --ink:#0B1220;
+      --muted:#64748B;
+      --line:#E5EAF3;
+      --brand:#2F6AFF;
+      --brand2:#1f56d9;
+      --radius:16px;
+      --shadow:0 10px 25px rgba(2,6,23,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:system-ui,Segoe UI,Arial; background:var(--bg); color:var(--ink);}
+    .app{display:grid; grid-template-columns:260px 1fr; min-height:100vh;}
+    .sidebar{background:#fff; border-left:1px solid var(--line); padding:16px;}
+    .brand{display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+    .badge{font-size:11px; background:#EEF3FF; color:#1f56d9; padding:4px 10px; border-radius:999px;}
+    .nav a{display:flex; justify-content:space-between; align-items:center; text-decoration:none; color:inherit; padding:8px 10px; border-radius:10px; font-size:13px;}
+    .nav a:hover{background:#F3F6FF;}
+    .main{padding:16px;}
+    .top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+    .actions{display:flex; gap:8px; flex-wrap:wrap;}
+    .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; font-weight:900; cursor:pointer; text-decoration:none; color:inherit;}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; border:none;}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:12px; margin-top:16px;}
+    .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px;}
+    .meta{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+    .pill{background:#F8FAFF; border:1px solid var(--line); padding:4px 8px; border-radius:999px; font-size:11px;}
+    .footer{margin-top:18px; color:var(--muted); font-size:12px;}
+    @media(max-width:900px){
+      .sidebar{display:none}
+      .app{grid-template-columns:1fr;}
+    }
+  </style>
+<div class="app">
+  <main class="main">
+    <div class="top">
+      <div class="title">
+        <h1>استوديو اللوحات</h1>
+        <p>تأليف اللوحات تحت الحوكمة. النشر فقط هو ما يظهر في بوابة العرض.</p>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="/dashboard-studio/create">إنشاء لوحة</a>
+        <a class="btn" href="/data-panel">بوابة العرض</a>
+        <a class="btn" href="/dashboard">الدرايف</a>
+        <a class="btn" href="/logout">خروج</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      {% for d in dashboards %}
+      <div class="card">
+        <h3>{{ d.name }}</h3>
+        <p>{{ d.description }}</p>
+        <div class="meta">
+          <span class="pill">الحالة: {{ d.status }}</span>
+          <span class="pill">ID: {{ d.dashboard_id }}</span>
+          <span class="pill">File: {{ d.file_id }}</span>
+          <span class="pill">Sheet: {{ d.sheet_name }}</span>
+        </div>
+        <div class="meta" style="margin-top:12px;">
+          <a class="btn" href="/dashboard-studio/{{ d.dashboard_id }}/edit">تحرير</a>
+          {% if d.status == "published" %}
+            <a class="btn" href="/data-panel/{{ d.dashboard_id }}">عرض</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

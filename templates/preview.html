@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>معاينة | سفنز درايف</title>
+<style>
+body{margin:0;font-family:system-ui,Segoe UI,Arial;background:#F6FAFF;color:#0B1220;min-height:100vh}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#0B1220;color:#fff;font-weight:900;flex-wrap:wrap}
+.bar .brand-logo{width:28px;height:28px;object-fit:contain;border-radius:6px}
+iframe{width:100%;height:calc(100vh - 48px);min-height:300px;border:none;background:#fff}
+@media (max-width:768px){ .bar{font-size:14px;padding:8px 12px} .bar .brand-logo{width:24px;height:24px} }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <img src="/static/7s.jpg" alt="سفنز درايف" class="brand-logo">
+    <span>معاينة للقراءة فقط | سفنز درايف</span>
+  </div>
+  <iframe src="{{ file_url }}"></iframe>
+</body>
+</html>

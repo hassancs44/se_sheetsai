@@ -1,0 +1,73 @@
+/**
+ * SE_SHEETSAI — BI loading skeletons (placeholder until widget data loads)
+ */
+.bi-skeleton {
+  padding: 1rem;
+  min-height: 80px;
+}
+
+.bi-skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--bi-border) 25%,
+    var(--bi-card-bg) 50%,
+    var(--bi-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: bi-skeleton-shine 1.2s ease-in-out infinite;
+  margin-bottom: 0.75rem;
+}
+
+.bi-skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.bi-skeleton-line.short {
+  width: 40%;
+}
+
+.bi-skeleton-line.medium {
+  width: 70%;
+}
+
+.bi-skeleton-kpi {
+  height: 48px;
+  width: 120px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--bi-border) 25%,
+    var(--bi-card-bg) 50%,
+    var(--bi-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: bi-skeleton-shine 1.2s ease-in-out infinite;
+}
+
+.bi-skeleton-chart {
+  height: 160px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--bi-border) 25%,
+    var(--bi-card-bg) 50%,
+    var(--bi-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: bi-skeleton-shine 1.2s ease-in-out infinite;
+}
+
+@keyframes bi-skeleton-shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.bi-widget.loading .bi-widget-body .bi-skeleton {
+  display: block;
+}
+
+.bi-widget:not(.loading) .bi-widget-body .bi-skeleton {
+  display: none;
+}

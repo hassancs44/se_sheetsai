@@ -1,0 +1,229 @@
+/**
+ * SE_SHEETSAI — BI Layout System
+ * 12-column grid, drag-placeholder, responsive. layout_json = { grid: { columns: 12, rowHeight: 80 }, items: [{ widget_id, x, y, w, h }] }
+ */
+.bi-dashboard-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  padding: 1rem;
+}
+
+.bi-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: var(--bi-card-bg);
+  border: 1px solid var(--bi-border);
+  border-radius: var(--bi-radius) var(--bi-radius) 0 0;
+  margin-bottom: 0;
+}
+
+.bi-toolbar .bi-title {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--bi-text-color);
+}
+
+.bi-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--bi-card-bg);
+  border: 1px solid var(--bi-border);
+  border-radius: var(--bi-radius-sm);
+}
+
+.bi-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bi-filter-item label {
+  font-size: 0.85rem;
+  color: var(--bi-text-muted);
+  white-space: nowrap;
+}
+
+.bi-filter-input {
+  min-width: 120px;
+}
+
+.bi-export-dropdown {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: auto;
+}
+
+.bi-no-copy {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.bi-no-print {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@media print {
+  .bi-no-print .bi-grid-wrap,
+  .bi-no-print .bi-widget-body {
+    pointer-events: none;
+  }
+}
+
+.bi-grid-wrap {
+  flex: 1;
+  background: var(--bi-background);
+  border: 1px solid var(--bi-border);
+  border-top: none;
+  border-radius: 0 0 var(--bi-radius) var(--bi-radius);
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* 12-column grid; row height from layout_json (default 80px) */
+.bi-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 80px;
+  gap: 1rem;
+  width: 100%;
+  min-height: 200px;
+}
+
+.bi-grid-item {
+  grid-column: span 6;
+  grid-row: span 4;
+  min-height: 0;
+}
+
+.bi-grid-item[data-w] { grid-column: span var(--w, 6); }
+.bi-grid-item[data-h] { grid-row: span var(--h, 4); }
+
+/* Studio: drag placeholder */
+.bi-grid-placeholder {
+  border: 2px dashed var(--bi-border);
+  border-radius: var(--bi-radius-sm);
+  background: rgba(37, 99, 235, 0.05);
+  min-height: 80px;
+}
+
+.bi-grid-item.dragging {
+  opacity: 0.5;
+  z-index: 10;
+}
+
+.bi-grid-item.resizing {
+  z-index: 10;
+}
+
+.bi-grid-item.bi-widget-selected {
+  outline: 2px solid var(--bi-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Responsive: collapse to single column on small screens */
+@media (max-width: 768px) {
+  .bi-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 120px;
+  }
+  .bi-grid-item,
+  .bi-grid-item[data-w] {
+    grid-column: 1;
+    grid-column-end: -1;
+  }
+  .bi-grid-item[data-h] {
+    grid-row: span 2;
+  }
+}
+
+/* Studio layout: main + right panel */
+.bi-studio-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  padding: 1rem;
+}
+
+.bi-studio-main {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  min-height: 400px;
+}
+
+.bi-studio-canvas {
+  flex: 1;
+  background: var(--bi-background);
+  border: 1px solid var(--bi-border);
+  border-radius: var(--bi-radius);
+  padding: 1rem;
+  overflow: auto;
+}
+
+.bi-studio-panel {
+  width: 320px;
+  min-width: 280px;
+  background: var(--bi-card-bg);
+  border: 1px solid var(--bi-border);
+  border-radius: var(--bi-radius);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.bi-studio-panel-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--bi-border);
+}
+
+.bi-studio-panel-tab {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--bi-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.bi-studio-panel-tab.active {
+  color: var(--bi-primary);
+  border-bottom-color: var(--bi-primary);
+}
+
+.bi-studio-panel-tab:hover {
+  color: var(--bi-text-color);
+}
+
+.bi-panel-section {
+  margin-bottom: 1rem;
+}
+
+.bi-panel-section h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--bi-text-muted);
+  margin: 0 0 0.5rem 0;
+}
+
+.bi-panel-section .bi-input,
+.bi-panel-section .bi-select {
+  margin-bottom: 0.5rem;
+}

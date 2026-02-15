@@ -1,0 +1,87 @@
+# SE_SHEETSAI — Production stack for DigitalOcean (Droplet or App Platform)
+# Usage: docker compose -f docker-compose.production.yml up -d
+# With OnlyOffice: set ONLYOFFICE_SERVER=http://onlyoffice:80 (or your public OnlyOffice URL)
+# Set BASE_URL to your public app URL before deploy.
+
+services:
+  app:
+    build: .
+    image: se-sheetsai:latest
+    container_name: sheetsai_app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - BASE_URL=${BASE_URL:-https://your-domain.com}
+      - ONLYOFFICE_SERVER=${ONLYOFFICE_SERVER:-http://onlyoffice:80}
+      - DB_PATH=/app/state/database.db
+      - DB_FALLBACK_PATH=/app/state/database_runtime.db
+      - BI_RUNTIME_ENGINE=postgres
+      - BI_POSTGRES_HOST=postgres
+      - BI_POSTGRES_PORT=5432
+      - BI_POSTGRES_DB=${BI_POSTGRES_DB:-sheetsai_bi}
+      - BI_POSTGRES_USER=${BI_POSTGRES_USER:-sheetsai_user}
+      - BI_POSTGRES_PASSWORD=${BI_POSTGRES_PASSWORD}
+    ports:
+      - "5000:5000"
+    volumes:
+      - sheetsai_data:/app/sheets
+      - sheetsai_uploads:/app/uploads
+      - sheetsai_versions:/app/versions
+      - sheetsai_archive:/app/archive
+      - sheetsai_logs:/app/logs
+      - sheetsai_state:/app/state
+      - sheetsai_data_excel:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # OnlyOffice Document Server (optional — for in-browser editing)
+  # Use same JWT secret in .env (ONLYOFFICE_JWT_SECRET). When running here, set ONLYOFFICE_SERVER=http://onlyoffice:80
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: sheetsai_onlyoffice
+    restart: unless-stopped
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
+      - JWT_HEADER=Authorization
+    ports:
+      - "8082:80"
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_logs:/var/log/onlyoffice
+    # Optional: comment out the onlyoffice service if you use an external OnlyOffice server
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: sheetsai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BI_POSTGRES_DB:-sheetsai_bi}
+      POSTGRES_USER: ${BI_POSTGRES_USER:-sheetsai_user}
+      POSTGRES_PASSWORD: ${BI_POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BI_POSTGRES_USER:-sheetsai_user} -d ${BI_POSTGRES_DB:-sheetsai_bi}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  sheetsai_data:
+  sheetsai_uploads:
+  sheetsai_versions:
+  sheetsai_archive:
+  sheetsai_logs:
+  sheetsai_state:
+  sheetsai_data_excel:
+  postgres_data:
+  onlyoffice_data:
+  onlyoffice_logs:

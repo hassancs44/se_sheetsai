@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.card{ background:#fff; border:1px solid #E5EAF3; border-radius:12px; padding:16px; margin-bottom:14px; }
+.card h3{ margin:0 0 8px; font-size:15px; }
+.actions{ margin-top:12px; }
+.actions a{ margin-right:10px; }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+th, td { padding: 10px; text-align: right; border-bottom: 1px solid #E5EAF3; }
+th { background: #F8FAFC; }
+</style>
+<h2>إدارة BI (لوحات داخلية)</h2>
+<p>للمسؤولين فقط — عرض لوحات BI ومجموعات البيانات.</p>
+
+<h3>لوحات مسجلة</h3>
+{% for d in bi_list %}
+<div class="card">
+  <h3>{{ d.title or d.internal_id }}</h3>
+  <p>المعرّف: <code>{{ d.internal_id }}</code> · ملف: {{ d.linked_file_id or '—' }} · مجلد: {{ d.linked_folder_id or '—' }}</p>
+  <div class="actions">
+    <a href="{{ url_for('bi_dashboard_view', internal_id=d.internal_id) }}">فتح اللوحة</a>
+    <a href="{{ url_for('bi_studio_dashboard', internal_id=d.internal_id) }}">تحرير</a>
+    <a href="{{ url_for('bi_index') }}">قائمة لوحات BI</a>
+  </div>
+</div>
+{% else %}
+<p>لا توجد لوحات. أنشئ لوحة من ملف Excel من صفحة الأقراص (زر «إنشاء لوحة» على الملف).</p>
+{% endfor %}
+
+<h3>مجموعات البيانات (bi_datasets)</h3>
+{% if bi_datasets %}
+<table>
+  <thead><tr><th>الرقم</th><th>الاسم</th><th>ملف المصدر</th><th>جدول المخرجات</th><th>آخر مزامنة</th></tr></thead>
+  <tbody>
+  {% for r in bi_datasets %}
+  <tr>
+    <td>{{ r.id }}</td>
+    <td>{{ r.name }}</td>
+    <td>{{ r.source_file_id or '—' }}</td>
+    <td>{{ r.output_table_name or '—' }}</td>
+    <td>{{ r.last_sync_at or r.last_ingested_at or '—' }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>لا توجد مجموعات بيانات. قم بإنشاء لوحة من ملف Excel لاستيراد البيانات.</p>
+{% endif %}
+
+<p style="margin-top: 24px;"><a href="{{ url_for('data_panel_home') }}">← البوابة</a> | <a href="{{ url_for('bi_index') }}">لوحات BI</a> | <a href="{{ url_for('dashboard') }}">الأقراص</a></p>
+{% endblock %}

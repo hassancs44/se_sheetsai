@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سفنز درايف — محرّك الملفات</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body { font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif; }
+    .sidebar { text-align: right; }
+    .brand-logo { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; margin-bottom: 10px; display: block; }
+    @media (max-width: 768px) {
+      body.app-wrap { flex-direction: column; }
+      .sidebar { width: 100%; max-width: 100%; padding: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-left: none; border-bottom: 1px solid #E5EAF3; }
+      .sidebar .brand-logo { width: 32px; height: 32px; margin: 0 8px 0 0; }
+      .sidebar h3 { margin: 0 auto 0 0; font-size: 1rem; }
+      .sidebar a { margin: 0; padding: 6px 10px; }
+      .content { padding: 12px; min-width: 0; }
+    }
+    @media (min-width: 1920px) {
+      .content { max-width: 1600px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body class="app-wrap">
+
+<aside class="sidebar">
+  <img src="/static/7s.jpg" alt="سفنز درايف" class="brand-logo">
+  <h3>سفنز درايف</h3>
+
+  <a href="{{ url_for('dashboard') }}">📁 الأقراص</a>
+  <a href="{{ url_for('shared_view') }}">🔗 المشاركة</a>
+  <a href="{{ url_for('trash_view') }}">🗑 سلة المهملات</a>
+
+  {% if can_access_bi %}
+    <a href="{{ url_for('data_panel_home') }}">📊 بوابة لوحات البيانات</a>
+    <a href="{{ url_for('bi_index') }}">📈 لوحات البيانات</a>
+    {% if can_edit_bi %}
+    <a href="{{ url_for('bi_studio_new') }}">🎨 استوديو لوحات البيانات</a>
+    {% endif %}
+  {% endif %}
+
+  {% if role == "admin" %}
+    <a href="{{ url_for('bi_admin') }}">⚙ إدارة لوحات البيانات</a>
+  {% endif %}
+
+  <hr>
+  <a href="{{ url_for('logout') }}" id="logout-link">🚪 تسجيل الخروج</a>
+</aside>
+
+<main class="content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages" style="padding:8px 16px; margin:0 0 12px; background:#FEF3C7; border:1px solid #F59E0B; border-radius:8px;">
+      {% for category, msg in messages %}
+      <p style="margin:0; font-weight:700;">{{ msg }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+(function() {
+  function onLogout(e) {
+    if (window.docEditor) {
+      try {
+        if (typeof window.docEditor.requestClose === "function") window.docEditor.requestClose();
+      } catch (err) {}
+      try {
+        if (typeof window.docEditor.destroyEditor === "function") window.docEditor.destroyEditor();
+      } catch (err) {}
+    }
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('a[href*="/logout"]').forEach(function(a) {
+      a.addEventListener("click", onLogout);
+    });
+  });
+  window.addEventListener("beforeunload", function() {
+    if (window.docEditor && typeof window.docEditor.requestClose === "function") {
+      try { window.docEditor.requestClose(); } catch (err) {}
+    }
+  });
+})();
+</script>
+</body>
+</html>

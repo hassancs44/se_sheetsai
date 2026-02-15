@@ -1,0 +1,1964 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+/* =========================
+   THEME
+========================= */
+:root{
+  --bg:#F6FAFF;
+  --card:#ffffff;
+  --ink:#0B1220;
+  --muted:#64748B;
+  --line:#E5EAF3;
+  --brand:#2F6AFF;
+  --brand2:#1f56d9;
+  --danger:#E11D48;
+  --ok:#16A34A;
+  --warn:#F59E0B;
+  --shadow: 0 10px 25px rgba(2,6,23,.08);
+  --radius:16px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:system-ui, "Segoe UI", Arial;
+  background: radial-gradient(1200px 600px at 80% 10%, rgba(47,106,255,.16), transparent 60%),
+              radial-gradient(900px 500px at 10% 85%, rgba(31,86,217,.10), transparent 60%),
+              var(--bg);
+  color:var(--ink);
+}
+a{ text-decoration:none; color:inherit; }
+button{ font-family:inherit; }
+
+.container{
+  display:flex;
+  min-height:100%;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar{
+  width:240px;
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:18px 16px;
+  position:fixed;
+  right:0;
+  top:0;
+  bottom:0;
+  overflow:auto;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px 14px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:14px;
+}
+.brand .logo{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  object-fit:cover;
+  box-shadow: var(--shadow);
+}
+
+.brand .t{
+  font-weight:900;
+  letter-spacing:.2px;
+}
+.brand .s{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.nav a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px;
+  border-radius:12px;
+  font-weight:800;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.nav a:hover{ background:#EEF3FF; }
+.nav a.active{
+  background:#EEF3FF;
+  color:var(--brand2);
+}
+.nav form{ margin:0 0 6px; }
+.btn-dashboard{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 10px;
+  border-radius:12px;
+  font-weight:800;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  cursor:pointer;
+}
+.btn-dashboard:hover{ background:#EEF3FF; }
+
+.userbox{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+.userbox .u{
+  font-weight:900;
+}
+.userbox .m{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  border:1px solid var(--line);
+  background:#F8FAFF;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+/* =========================
+   MAIN
+========================= */
+.main{
+  flex:1;
+  margin-right:240px;
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+
+/* TOPBAR */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:rgba(255,255,255,.80);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.topbar .left{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.topbar .title{
+  font-weight:900;
+  font-size:16px;
+}
+.topbar .sub{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.topbar .right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.search{
+  width:320px;
+  max-width:48vw;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.search input{
+  border:none;
+  outline:none;
+  width:100%;
+  font-size:13px;
+  background:transparent;
+}
+.search .ic{ color:var(--muted); font-weight:900; }
+
+.btn{
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid transparent;
+  background:var(--brand);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0px); }
+
+.btn.gray{
+  background:#fff;
+  color:var(--ink);
+  border-color: var(--line);
+}
+.btn.dark{ background:#0B1220; }
+.btn.red{ background:var(--danger); }
+.btn.small{
+  padding:8px 10px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.wrap{
+  max-width:1200px;
+  width:100%;
+  margin:0 auto;
+  padding:18px;
+}
+
+/* BREADCRUMB */
+.breadcrumb{
+  font-size:13px;
+  color:var(--muted);
+  margin:6px 0 14px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.breadcrumb a{
+  color:var(--brand2);
+  font-weight:900;
+}
+.sep{ color:#94a3b8; }
+
+/* ACTION ROW */
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:12px 0 18px;
+}
+.actions .hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-right:auto;
+}
+
+
+/* SECTIONS */
+.section{
+  margin-top:18px;
+  margin-bottom:22px;
+}
+.section .h{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.section .h .t{
+  font-size:15px;
+  font-weight:1000;
+}
+.section .h .count{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:14px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow: 0 8px 20px rgba(2,6,23,.04);
+  transition:.15s;
+}
+.card:hover{ transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.card .top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.icon{
+  width:44px;height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:#EEF3FF;
+  color:var(--brand2);
+}
+.icon.file{ background:#F1F5F9; color:#334155; }
+
+.card .name{
+  font-weight:1000;
+  margin-top:10px;
+  line-height:1.25;
+  word-break:break-word;
+}
+.card .meta{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.tags{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.tag{
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:999px;
+  font-weight:900;
+  border:1px solid var(--line);
+  background:#F8FAFF;
+  color:var(--muted);
+}
+.tag.viewer{ background:#F1F5F9; color:#475569; }
+.tag.editor{ background:#ECFEFF; color:#0E7490; }
+.tag.owner{ background:#DCFCE7; color:#166534; }
+
+.card .row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.card .row form{ margin:0; }
+.linkbtn{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.linkbtn:hover{ background:#F8FAFF; }
+.linkbtn.red{ border-color:#fecdd3; background:#fff1f2; color:#9f1239; }
+
+/* EMPTY */
+.empty{
+  padding:18px;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
+  background:rgba(255,255,255,.6);
+  color:var(--muted);
+  font-weight:800;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:999;
+}
+.modal.show{ display:flex; }
+.modal .box{
+  width:420px;
+  max-width:92vw;
+  background:#fff;
+  border-radius:18px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.modal .head{
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.modal .head h3{
+  margin:0;
+  font-size:15px;
+  font-weight:1000;
+}
+.modal .close{
+  border:none;
+  background:#fff;
+  font-size:18px;
+  cursor:pointer;
+  padding:6px 10px;
+  border-radius:12px;
+}
+.modal .close:hover{ background:#F1F5F9; }
+.modal .body{ padding:14px 16px; }
+.modal label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  margin:10px 0 6px;
+}
+.modal input, .modal select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  outline:none;
+  font-size:13px;
+}
+.modal input:focus, .modal select:focus{
+  border-color: rgba(47,106,255,.5);
+  box-shadow: 0 0 0 3px rgba(47,106,255,.12);
+}
+.modal .foot{
+  padding:14px 16px;
+  border-top:1px solid var(--line);
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+/* =========================
+   TOAST
+========================= */
+.toast{
+  position:fixed;
+  left:16px;
+  bottom:16px;
+  background:#0B1220;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:900;
+  font-size:13px;
+  box-shadow: var(--shadow);
+  display:none;
+  z-index:9999;
+}
+.toast.show{ display:block; }
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 900px){
+  .sidebar{ display:none; }
+  .main{ margin-right:0; }
+  .search{ width:100%; max-width:100%; }
+  .topbar{ gap:10px; flex-wrap:wrap; }
+  .topbar .right{ width:100%; justify-content:space-between; }
+}
+</style>
+
+{% set perm_role = perm_role|default('owner') %}
+{% set can_edit = page_can_edit %}
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="left">
+        <div class="title">
+          {% if current_folder %} {{ current_folder.name }}{% else %} ملفاتي{% endif %}
+        </div>
+        <div class="sub">
+          {% if can_edit %}
+            لديك صلاحية تعديل ({{ perm_role }})
+          {% else %}
+            عرض فقط (مشاهد)
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="right">
+        {% if current_folder %}
+          {% if current_folder.parent_id %}
+          <a href="{{ url_for('open_folder', folder_id=current_folder.parent_id) }}" class="btn gray">← المجلد الأعلى</a>
+          {% else %}
+          <a href="{{ url_for('dashboard') }}" class="btn gray">← العودة إلى الأقراص</a>
+          {% endif %}
+        {% endif %}
+        <div class="search">
+          <span class="ic">⌕</span>
+          <input id="q" placeholder="ابحث بالاسم..." oninput="applySearch()" />
+        </div>
+        <button class="btn gray" onclick="openModal('searchModal')">بحث متقدم</button>
+
+        {% if can_edit %}
+          <button class="btn" onclick="openModal('createFolderModal')">+ مجلد</button>
+          <button class="btn dark" onclick="openModal('createFileModal')">+ ملف</button>
+          <button class="btn gray" onclick="openModal('uploadModal')">رفع</button>
+          <button class="btn gray" onclick="openMovePanel()">لوحة نقل</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="wrap">
+
+      <!-- BREADCRUMB -->
+      <div class="breadcrumb">
+        <a href="{{ url_for('dashboard') }}">ملفاتي</a>
+        {% if path and path|length > 0 %}
+        {% for p in path %}
+          <span class="sep">/</span>
+          <a href="{{ url_for('open_folder', folder_id=p.folder_id) }}" class="crumb-drop" data-folder="{{ p.folder_id }}">{{ p.name }}</a>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <div class="hint">
+          {% if current_folder %}
+            معرّف المجلد: <b>{{ current_folder.folder_id }}</b>
+          {% else %}
+            الجذر
+          {% endif %}
+        </div>
+
+        {% if current_folder_actions and current_folder_actions.share %}
+          <button class="btn gray" onclick="openShare('folder','{{ current_folder.folder_id }}')">إدارة مشاركة هذا المجلد</button>
+        {% endif %}
+      </div>
+
+      <!-- BI DASHBOARDS (folder-linked) -->
+      {% if current_folder and (folder_dashboards|default([]))|length > 0 %}
+      <div class="section">
+        <div class="h">
+          <div class="t"> لوحات BI</div>
+          <div class="count">{{ (folder_dashboards|default([]))|length }}</div>
+        </div>
+        <div class="grid" style="margin-bottom:14px;">
+          {% for d in (folder_dashboards|default([])) %}
+          <div class="card folder-card">
+            <div class="top"><div class="icon">📊</div></div>
+            <a href="{{ url_for('bi_dashboard_view', internal_id=d.internal_id) }}"><div class="name">{{ d.title or d.internal_id }}</div></a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- FOLDERS -->
+      <div class="section">
+        <div class="h">
+          <div class="t"> المجلدات</div>
+          <div class="count">{{ folders|length }} عنصر</div>
+        </div>
+
+        {% if folders|length == 0 %}
+          <div class="empty">لا توجد مجلدات هنا.</div>
+        {% else %}
+        <div class="grid" id="foldersGrid">
+          {% for f in folders %}
+          <div class="card folder-card"
+     data-id="{{ f.folder_id }}"
+     data-type="folder"
+     data-name="{{ f.name|lower }}"
+     draggable="true">
+            <div class="top">
+              <div class="icon">📁</div>
+              <div class="tags">
+                <span class="tag {{ perm_role }}">{% if perm_role == 'viewer' %}مشاهد{% elif perm_role == 'editor' %}محرّر{% elif perm_role == 'owner' %}مالك{% else %}{{ perm_role }}{% endif %}</span>
+              </div>
+            </div>
+
+            <a href="{{ url_for('open_folder', folder_id=f.folder_id) }}">
+              <div class="name">{{ f.name }}</div>
+              </a>
+                <div class="meta">{{ f.created_at }}</div>
+            <div class="row">
+              {% if f.allowed_actions.rename %}
+                <button class="linkbtn" onclick="openRename('folder','{{ f.folder_id }}','{{ f.name|e }}')"> إعادة تسمية</button>
+              {% endif %}
+              {% if f.allowed_actions.move %}
+                <button class="linkbtn" onclick="openMove('folder','{{ f.folder_id }}')"> نقل</button>
+              {% endif %}
+
+              {% if f.allowed_actions.share %}
+                <button class="linkbtn" onclick="openShare('folder','{{ f.folder_id }}')"> مشاركة</button>
+              {% endif %}
+              {% if f.allowed_actions.delete %}
+                <form method="POST" action="{{ url_for('trash_item', item_type='folder', item_id=f.folder_id) }}" onsubmit="return confirmDelete()">
+                  <button class="linkbtn red" type="submit"> حذف</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- FILES -->
+      <div class="section">
+        <div class="h">
+          <div class="t"> الملفات</div>
+          <div class="count">{{ files|length }} عنصر</div>
+        </div>
+
+        {% if files|length == 0 %}
+          <div class="empty">لا توجد ملفات هنا.</div>
+        {% else %}
+        <div class="grid" id="filesGrid">
+          {% for f in files %}
+          <div class="card file-card"
+     data-id="{{ f.file_id }}"
+     data-type="file"
+     data-name="{{ f.name|lower }}"
+     draggable="true">
+            <div class="top">
+              <div class="icon file">📄</div>
+              <div class="tags">
+                <span class="tag {{ perm_role }}">{% if perm_role == 'viewer' %}مشاهد{% elif perm_role == 'editor' %}محرّر{% elif perm_role == 'owner' %}مالك{% else %}{{ perm_role }}{% endif %}</span>
+                {% if f.classification %}
+                  <span class="tag">{{ f.classification }}</span>
+                {% endif %}
+                {% if f.archived_at %}
+                  <span class="tag">مؤرشف</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <a href="{{ url_for('open_editor', file_id=f.file_id) }}">
+              <div class="name">{{ f.name }}</div>
+            </a>
+
+            <div class="meta">{{ f.created_at }}</div>
+            <div class="meta" style="margin-top:4px">نوع: {{ f.mime }}</div>
+
+            <div class="row">
+              {% if f.allowed_actions.rename %}
+                <button class="linkbtn" onclick="openRename('file','{{ f.file_id }}','{{ f.name|e }}')"> إعادة تسمية</button>
+              {% endif %}
+              {% if f.allowed_actions.move %}
+                <button class="linkbtn" onclick="openMove('file','{{ f.file_id }}')"> نقل</button>
+              {% endif %}
+              {% if f.allowed_actions.versions %}
+                <button class="linkbtn" onclick="openVersions('{{ f.file_id }}')"> الإصدارات</button>
+              {% endif %}
+              {% if f.allowed_actions.open %}
+                <button class="linkbtn" onclick="openParticipants('{{ f.file_id }}')" title="من فتح أو عدّل الملف"> المشاركون</button>
+              {% endif %}
+              {% if (f.file_type or '') == 'sheet' or '.xlsx' in ((f.name or '')|lower) %}
+                <button class="linkbtn" onclick="openExcelLinks('{{ f.file_id }}')" title="ربط الملفات الرئيسية والفرعية — صب بيانات الفرعيات في الرئيسي">🔗 ربط الملفات</button>
+              {% endif %}
+
+              {% if f.allowed_actions.share %}
+                <button class="linkbtn" onclick="openShare('file','{{ f.file_id }}')"> مشاركة</button>
+              {% endif %}
+              {% if f.allowed_actions.cell_permissions %}
+                <button class="linkbtn" onclick="openCellPermissions('{{ f.file_id }}')"> صلاحيات خلايا</button>
+              {% endif %}
+              {% if f.allowed_actions.transfer_ownership %}
+                <button class="linkbtn" onclick="openOwnership('{{ f.file_id }}')"> نقل ملكية</button>
+              {% endif %}
+              {% if can_access_bi %}
+                {% if file_bi_dashboard and file_bi_dashboard.get(f.file_id) %}
+                  {% set d = file_bi_dashboard[f.file_id] %}
+                  <a class="linkbtn" href="{{ url_for('bi_dashboard_view', internal_id=d.internal_id) }}">📊 عرض اللوحة</a>
+                  <a class="linkbtn" href="{{ url_for('bi_studio_dashboard', internal_id=d.internal_id) }}">✏️ تحرير اللوحة</a>
+                {% else %}
+                  <form method="POST" action="{{ url_for('bi_create_from_file_s2', file_id=f.file_id) }}" style="display:inline;">
+                    <button class="linkbtn" type="submit">📊 إنشاء لوحة تحليلات</button>
+                  </form>
+                {% endif %}
+              {% endif %}
+              {% if f.allowed_actions.delete %}
+                <form method="POST" action="{{ url_for('trash_item', item_type='file', item_id=f.file_id) }}" onsubmit="return confirmDelete()">
+                  <button class="linkbtn red" type="submit"> حذف</button>
+                </form>
+              {% endif %}
+              {% if f.archived_at and f.allowed_actions.restore_archive %}
+                <form method="POST" action="/archive/restore/{{ f.file_id }}">
+                  <button class="linkbtn" type="submit">استعادة من الأرشيف</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- =========================
+     MODALS
+========================= -->
+
+<!-- CREATE FOLDER -->
+<div class="modal" id="createFolderModal">
+  <div class="box">
+    <div class="head">
+      <h3>إنشاء مجلد</h3>
+      <button class="close" onclick="closeModal('createFolderModal')">×</button>
+    </div>
+    <div class="body">
+      <label>اسم المجلد</label>
+      <input id="newFolderName" placeholder="مثال: فواتير 2026" />
+      <input type="hidden" id="newFolderParent" value="{{ current_folder.folder_id if current_folder else 'ROOT' }}">
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('createFolderModal')">إلغاء</button>
+      <button class="btn" onclick="submitCreateFolder()">إنشاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE FILE -->
+<div class="modal" id="createFileModal">
+  <div class="box">
+    <div class="head">
+      <h3>إنشاء ملف</h3>
+      <button class="close" onclick="closeModal('createFileModal')">×</button>
+    </div>
+    <div class="body">
+      <label>اسم الملف</label>
+<input id="newFileName" placeholder="مثال: تقرير مبيعات" />
+
+<label style="margin-top:10px">نوع الملف</label>
+<select id="newFileExt">
+  <option value="xlsx">إكسل</option>
+  <option value="docx">وورد</option>
+  <option value="pptx">باوربوينت</option>
+</select>
+
+<input type="hidden" id="newFileParent" value="{{ current_folder.folder_id if current_folder else 'ROOT' }}">
+
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('createFileModal')">إلغاء</button>
+      <button class="btn dark" onclick="submitCreateFile()">إنشاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<div class="modal" id="uploadModal">
+  <div class="box">
+    <div class="head">
+      <h3>رفع ملف</h3>
+      <button class="close" onclick="closeModal('uploadModal')">×</button>
+    </div>
+    <div class="body">
+      <form id="uploadForm" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+        <label>اختر ملف</label>
+        <input name="file" type="file" required />
+        <input type="hidden" name="folder_id" value="{{ current_folder.folder_id if current_folder else '' }}">
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6">
+          سيتم رفع الملف داخل هذا المجلد إن وجد.
+        </div>
+      </form>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('uploadModal')">إلغاء</button>
+      <button class="btn" onclick="document.getElementById('uploadForm').submit()">رفع</button>
+    </div>
+  </div>
+</div>
+
+<!-- RENAME -->
+<div class="modal" id="renameModal">
+  <div class="box">
+    <div class="head">
+      <h3>إعادة تسمية</h3>
+      <button class="close" onclick="closeModal('renameModal')">×</button>
+    </div>
+    <div class="body">
+      <input type="hidden" id="renameType">
+      <input type="hidden" id="renameId">
+      <label>الاسم الجديد</label>
+      <input id="renameName" />
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('renameModal')">إلغاء</button>
+      <button class="btn" onclick="submitRename()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOVE -->
+<div class="modal" id="moveModal">
+  <div class="box">
+    <div class="head">
+      <h3>نقل عنصر</h3>
+      <button class="close" onclick="closeModal('moveModal')">×</button>
+    </div>
+    <div class="body">
+      <input type="hidden" id="moveType">
+      <input type="hidden" id="moveId">
+
+      <label>معرّف المجلد الهدف</label>
+      <input id="moveTarget" placeholder="معرّف المجلد أو اتركه فارغاً للجذر" />
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">
+        ملاحظة: النظام يقبل معرّف المجلد للملفات ومعرّف الأب للمجلدات.
+      </div>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('moveModal')">إلغاء</button>
+      <button class="btn" onclick="submitMove()">نقل</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE -->
+<div class="modal" id="shareModal">
+  <div class="box">
+    <div class="head">
+      <h3>مشاركة</h3>
+      <button class="close" onclick="closeModal('shareModal')">×</button>
+    </div>
+
+    <div class="body">
+      <input type="hidden" id="share_item_type">
+      <input type="hidden" id="share_item_id">
+
+      <label>نوع المشاركة</label>
+      <select id="share_target_type" onchange="onShareTypeChange()">
+        <option value="user">البريد الإلكتروني</option>
+        <option value="department">القسم</option>
+        <option value="role">الدور الوظيفي</option>
+        <option value="external">هوية خارجية مؤقتة</option>
+        <option value="public">عام</option>
+
+      </select>
+
+      <label id="shareTargetLabel">القيمة</label>
+      <input id="share_target_value" placeholder="مثال: user@company.com" />
+
+      <label>الصلاحية</label>
+      <select id="share_role">
+        <option value="viewer">مشاهد</option>
+        <option value="editor">محرّر</option>
+      </select>
+
+      <label>نطاق المشاركة</label>
+      <select id="share_scope">
+        <option value="file">ملف</option>
+        <option value="folder">مجلد</option>
+        <option value="recursive">متكرر (فرعي)</option>
+      </select>
+
+      <label>تاريخ انتهاء المشاركة</label>
+      <input id="share_expires_at" type="datetime-local" />
+
+      <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.6">
+        صلاحية المالك لا تُمنح من هنا (المالك = المالك الأصلي).
+      </div>
+    </div>
+
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('shareModal')">إلغاء</button>
+      <button class="btn" onclick="submitShare()">مشاركة</button>
+    </div>
+  </div>
+</div>
+<!-- MOVE PANEL (TREE) -->
+<!-- VERSIONS -->
+<div class="modal" id="versionsModal">
+  <div class="box">
+    <div class="head">
+      <h3>الإصدارات</h3>
+      <button class="close" onclick="closeModal('versionsModal')">×</button>
+    </div>
+    <div class="body">
+      <div id="versionsList" style="font-size:12px;color:var(--muted)">جاري التحميل...</div>
+      <input type="hidden" id="versionsFileId">
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('versionsModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- PARTICIPANTS (المشاركون في الملف) -->
+<div class="modal" id="participantsModal">
+  <div class="box">
+    <div class="head">
+      <h3>المشاركون في الملف</h3>
+      <button class="close" onclick="closeModal('participantsModal')">×</button>
+    </div>
+    <div class="body">
+      <p style="font-size:12px;color:var(--muted);margin:0 0 8px">من فتح أو عدّل الملف</p>
+      <div id="participantsList" style="font-size:13px">جاري التحميل...</div>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('participantsModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- CELL PERMISSIONS -->
+<div class="modal" id="cellPermModal">
+  <div class="box">
+    <div class="head">
+      <h3>صلاحيات الخلايا</h3>
+      <button class="close" onclick="closeModal('cellPermModal')">×</button>
+    </div>
+    <div class="body">
+      <input type="hidden" id="cell_item_id">
+      <label>ورقة (اختياري)</label>
+      <input id="cell_sheet_name" placeholder="ورقة1" />
+      <label>النطاق</label>
+      <select id="cell_scope_type">
+        <option value="cell">خلية</option>
+        <option value="row">صف</option>
+        <option value="column">عمود</option>
+        <option value="range">نطاق</option>
+      </select>
+      <label>القيمة</label>
+      <input id="cell_scope_value" placeholder="B5 / 5 / B / B2:D200" />
+      <label>الهدف</label>
+      <select id="cell_target_type">
+        <option value="user">مستخدم</option>
+        <option value="department">قسم</option>
+        <option value="role">دور</option>
+        <option value="public">عام</option>
+      </select>
+      <label>القيمة</label>
+      <input id="cell_target_value" placeholder="البريد / اسم القسم / الدور" />
+      <label>الصلاحية</label>
+      <select id="cell_perm">
+        <option value="view">عرض</option>
+        <option value="edit">تحرير</option>
+      </select>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('cellPermModal')">إلغاء</button>
+      <button class="btn" onclick="submitCellPermission()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXCEL LINKS (Master/Child) — ترابط الملفات مثل Google Sheets -->
+<div class="modal" id="excelLinksModal">
+  <div class="box" style="max-width:680px">
+    <div class="head">
+      <h3>ربط الملفات — ترابط رئيسي/فرعي</h3>
+      <button class="close" onclick="closeModal('excelLinksModal')">×</button>
+    </div>
+    <div class="body">
+      <p style="font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5">الملف <strong>الرئيسي</strong> = قالب بأعمدة ثابتة. الملفات <strong>الفرعية</strong> تأخذ نفس القالب. عند الكتابة في الفرعية تُصبّ البيانات تلقائياً في الرئيسي. (مثل Google Sheets)</p>
+      <input type="hidden" id="excelLinksFileId">
+      <div id="excelLinksContent" style="font-size:13px;min-height:50px">جاري التحميل...</div>
+      <!-- Mode selector (when no links yet) -->
+      <div id="excelLinksModeSelector" style="display:none;margin-top:12px">
+        <div style="font-weight:900;margin-bottom:8px">اختر الوضع:</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button type="button" class="btn small" id="btnSetMaster" onclick="excelLinksSetMode('master')">تعيين كملف رئيسي</button>
+          <button type="button" class="btn small" id="btnSetChild" onclick="excelLinksSetMode('child')">تعيين كملف فرعي</button>
+        </div>
+      </div>
+      <!-- Master mode -->
+      <div id="excelLinksAsMaster" style="display:none;margin-top:12px">
+        <div style="font-weight:900;margin-bottom:8px">كملف رئيسي: إدارة الملفات الفرعية</div>
+        <div style="margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <label>الصف الذي يحتوي العناوين:</label>
+          <select id="excelLinksHeaderMode" onchange="excelLinksRefreshPreview()" style="width:140px">
+            <option value="auto">اكتشاف تلقائي (موصى به)</option>
+            <option value="row1">الصف 1</option>
+            <option value="row2">الصف 2</option>
+            <option value="row3">الصف 3</option>
+          </select>
+          <label>ورقة:</label>
+          <select id="excelLinksSheetSelect" onchange="excelLinksRefreshPreview()" style="width:120px">
+            <option value="Sheet1">Sheet1</option>
+          </select>
+        </div>
+        <div id="excelLinksSchemaPreview" style="margin-bottom:10px;padding:10px;background:var(--bg);border-radius:8px;font-size:12px;border:1px solid rgba(0,0,0,.1)">
+          <div id="excelLinksSchemaStatus" style="margin-bottom:8px;font-weight:700"></div>
+          <div id="excelLinksBusinessCols" style="margin-bottom:6px"><strong>أعمدة الأعمال:</strong> <span id="excelLinksBusinessColsList"></span></div>
+          <div id="excelLinksSystemCols" style="margin-bottom:8px;color:var(--muted);font-size:11px"><strong>أعمدة النظام:</strong> <span id="excelLinksSystemColsList"></span></div>
+          <div id="excelLinksPreviewTable" style="overflow-x:auto;max-height:120px;font-size:11px"></div>
+        </div>
+        <div id="excelLinksSchemaBox" style="display:none;margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;font-size:12px">
+          <strong>أعمدة القالب:</strong> <span id="excelLinksSchemaCols"></span>
+        </div>
+        <div style="margin-bottom:8px">
+          <button type="button" class="btn small" id="btnPushSchema" onclick="pushMasterSchemaToChildren()" title="تحديث صف العناوين في كل الملفات الفرعية ليطابق الملف الرئيسي">نشر القالب إلى كل الفرعيات</button>
+        </div>
+        <div id="excelLinksChildrenList"></div>
+        <label style="margin-top:10px">إضافة ملف فرعي</label>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+          <select id="excelLinksNewChildSelect" style="flex:1;min-width:180px">
+            <option value="">اختر ملف فرعي...</option>
+          </select>
+          <button class="btn small" id="btnAddExcelChild" onclick="addExcelLinkChild()">إضافة وربط</button>
+        </div>
+      </div>
+      <!-- Child mode -->
+      <div id="excelLinksAsChild" style="display:none;margin-top:12px">
+        <div style="font-weight:900;margin-bottom:8px">كملف فرعي: مرتبط بالملف الرئيسي</div>
+        <div id="excelLinksChildSchemaBox" style="display:none;margin-bottom:10px;padding:8px;background:var(--bg);border-radius:8px;font-size:12px">
+          <strong>الأعمدة المطلوبة:</strong> <span id="excelLinksChildSchemaCols"></span>
+        </div>
+        <div id="excelLinksChildStatus"></div>
+        <div id="excelLinksChildSyncLogs" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+        <button class="btn small" onclick="syncExcelLinkNow()" style="margin-top:8px">مزامنة الآن</button>
+      </div>
+      <!-- Link as child (when no links yet, after choosing Set as Child) -->
+      <div id="excelLinksSetChild" style="display:none;margin-top:12px">
+        <div style="font-weight:900;margin-bottom:8px">ربط كملف فرعي بالملف الرئيسي</div>
+        <label>اختر الملف الرئيسي</label>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+          <select id="excelLinksMasterSelect" style="flex:1;min-width:200px">
+            <option value="">اختر ملف رئيسي...</option>
+          </select>
+          <button class="btn small" onclick="linkAsChildToMaster()">تأكيد الربط</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('excelLinksModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- OWNERSHIP -->
+<div class="modal" id="ownershipModal">
+  <div class="box">
+    <div class="head">
+      <h3>نقل ملكية</h3>
+      <button class="close" onclick="closeModal('ownershipModal')">×</button>
+    </div>
+    <div class="body">
+      <input type="hidden" id="ownership_item_id">
+      <label>المالك الجديد</label>
+      <input id="ownership_new_owner" placeholder="البريد الإلكتروني للمالك الجديد" />
+      <label>السبب</label>
+      <input id="ownership_reason" placeholder="سبب التحويل" />
+      <label>توقيع/رمز قانوني</label>
+      <input id="ownership_signature" placeholder="رمز التوقيع" />
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('ownershipModal')">إلغاء</button>
+      <button class="btn" onclick="submitOwnership()">تحويل</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SEARCH -->
+<div class="modal" id="searchModal">
+  <div class="box">
+    <div class="head">
+      <h3>بحث متقدم</h3>
+      <button class="close" onclick="closeModal('searchModal')">×</button>
+    </div>
+    <div class="body">
+      <label>الكلمة</label>
+      <input id="adv_q" placeholder="ابحث داخل الملفات..." />
+      <label>القسم (اختياري)</label>
+      <input id="adv_department" placeholder="مثال: مبيعات" />
+      <div id="searchResults" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+    </div>
+    <div class="foot">
+      <button class="btn gray" onclick="closeModal('searchModal')">إغلاق</button>
+      <button class="btn" onclick="submitAdvancedSearch()">بحث</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="movePanelModal">
+  <div class="box">
+    <div class="head">
+      <h3>لوحة نقل</h3>
+      <button class="close" onclick="closeModal('movePanelModal')">×</button>
+    </div>
+    <div class="body">
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">
+        اختر المجلد الهدف من الشجرة (أو اختر الجذر).
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn gray small" onclick="movePanelToRoot()">نقل إلى الجذر</button>
+      </div>
+
+      <div id="treeBox" style="margin-top:12px;border:1px solid var(--line);border-radius:14px;padding:10px;max-height:340px;overflow:auto;background:#fff">
+        جاري تحميل الشجرة...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================
+   HELPERS
+========================= */
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 2200);
+}
+
+function openModal(id){
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.classList.add("show");
+}
+function closeModal(id){
+  const m = document.getElementById(id);
+  if(!m) return;
+  m.classList.remove("show");
+}
+
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape"){
+    document.querySelectorAll(".modal.show").forEach(m=>m.classList.remove("show"));
+  }
+});
+document.querySelectorAll(".modal").forEach(m=>{
+  m.addEventListener("click",(e)=>{
+    if(e.target === m) m.classList.remove("show");
+  });
+});
+
+function postForm(action, data){
+  const f = document.createElement("form");
+  f.method = "POST";
+  f.action = action;
+  for(const k in data){
+    const i = document.createElement("input");
+    i.type = "hidden";
+    i.name = k;
+    i.value = data[k];
+    f.appendChild(i);
+  }
+  document.body.appendChild(f);
+  f.submit();
+}
+
+function confirmDelete(){
+  return confirm("تأكيد: نقل للسلة؟");
+}
+
+/* =========================
+   SEARCH FILTER
+========================= */
+function applySearch(){
+  const q = (document.getElementById("q").value || "").trim().toLowerCase();
+  document.querySelectorAll("[data-name]").forEach(el=>{
+    const name = el.getAttribute("data-name") || "";
+    el.style.display = name.includes(q) ? "" : "none";
+  });
+}
+
+/* =========================
+   CREATE FOLDER/FILE
+========================= */
+function submitCreateFolder(){
+  const name = (document.getElementById("newFolderName").value || "").trim();
+  const parent_id = document.getElementById("newFolderParent").value || "ROOT";
+  if(!name){ toast("اكتب اسم المجلد"); return; }
+  postForm("/folder/create", { name, parent_id });
+}
+
+function submitCreateFile(){
+  const name = (document.getElementById("newFileName").value || "").trim();
+  const ext = document.getElementById("newFileExt").value;
+  let folder_id = document.getElementById("newFileParent").value;
+
+if(!folder_id || folder_id === ""){
+  folder_id = "ROOT";
+}
+
+
+  if(!name){
+    toast("اكتب اسم الملف");
+    return;
+  }
+
+  postForm("/file/create_onlyoffice", {
+    name,
+    ext,
+    folder_id
+  });
+}
+
+
+/* =========================
+   RENAME
+========================= */
+function openRename(type, id, currentName){
+  document.getElementById("renameType").value = type;
+  document.getElementById("renameId").value = id;
+  document.getElementById("renameName").value = currentName || "";
+  openModal("renameModal");
+}
+
+function submitRename(){
+  const type = document.getElementById("renameType").value;
+  const id = document.getElementById("renameId").value;
+  const name = (document.getElementById("renameName").value || "").trim();
+  if(!name){ toast("اكتب الاسم الجديد"); return; }
+  postForm(`/rename/${type}/${id}`, { name });
+}
+
+/* =========================
+   MOVE
+========================= */
+function openMove(type, id){
+  document.getElementById("moveType").value = type;
+  document.getElementById("moveId").value = id;
+  document.getElementById("moveTarget").value = "";
+  openModal("moveModal");
+}
+
+function submitMove(){
+  const type = document.getElementById("moveType").value;
+  const id = document.getElementById("moveId").value;
+  const target_folder = (document.getElementById("moveTarget").value || "").trim();
+  // فارغ = ROOT (باك اندك يتعامل مع None/فارغ)
+  postForm(`/move/${type}/${id}`, { target_folder });
+}
+
+/* =========================
+   SHARE
+========================= */
+function openShare(type, id){
+  document.getElementById("share_item_type").value = type;
+  document.getElementById("share_item_id").value = id;
+  document.getElementById("share_target_type").value = "user";
+  document.getElementById("share_target_value").value = "";
+  document.getElementById("share_role").value = "viewer";
+  document.getElementById("share_expires_at").value = "";
+  const scope = document.getElementById("share_scope");
+  if(type === "file"){
+    scope.value = "file";
+    scope.disabled = true;
+  }else{
+    scope.value = "folder";
+    scope.disabled = false;
+  }
+  onShareTypeChange();
+  openModal("shareModal");
+}
+
+function onShareTypeChange(){
+  const t = document.getElementById("share_target_type").value;
+  const label = document.getElementById("shareTargetLabel");
+  const input = document.getElementById("share_target_value");
+
+  if(t === "public"){
+    label.textContent = "القيمة (اتركها فارغة)";
+    input.placeholder = "اتركه فارغ";
+    input.value = "";
+    input.disabled = true;
+  }else if(t === "department"){
+    label.textContent = "اسم القسم";
+    input.placeholder = "مثال: IT";
+    input.disabled = false;
+  }else if(t === "role"){
+    label.textContent = "الدور الوظيفي";
+    input.placeholder = "مثال: manager";
+    input.disabled = false;
+  }else if(t === "external"){
+    label.textContent = "هوية خارجية";
+    input.placeholder = "مثال: ext-12345";
+    input.disabled = false;
+  }else{
+    label.textContent = "البريد الإلكتروني";
+    input.placeholder = "مثال: example@sevens.sa";
+    input.disabled = false;
+  }
+}
+
+function submitShare(){
+  const item_type = document.getElementById("share_item_type").value;
+  const item_id = document.getElementById("share_item_id").value;
+  const target_type = document.getElementById("share_target_type").value;
+  let target_value = (document.getElementById("share_target_value").value || "").trim();
+  const role = document.getElementById("share_role").value;
+  const share_scope = document.getElementById("share_scope").value;
+  const expires_at = document.getElementById("share_expires_at").value;
+
+  if(target_type !== "public" && !target_value){
+    toast("اكتب القيمة");
+    return;
+  }
+  if(target_type === "public") target_value = "";
+
+  postForm("/share", { item_type, item_id, target_type, target_value, role, share_scope, expires_at });
+}
+
+/* =========================
+   VERSIONS
+========================= */
+async function openVersions(fileId){
+  document.getElementById("versionsFileId").value = fileId;
+  openModal("versionsModal");
+  const box = document.getElementById("versionsList");
+  box.textContent = "جاري التحميل...";
+  try{
+    const res = await fetch(`/versions/${fileId}`);
+    const data = await res.json();
+    const items = data.versions || [];
+    if(!items.length){
+      box.textContent = "لا توجد إصدارات محفوظة.";
+      return;
+    }
+    const latest = items[0].version_no;
+    box.innerHTML = items.map(v => `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div>#${v.version_no} • ${v.version_type} • ${v.created_at}</div>
+        <div style="display:flex;gap:6px">
+          <button class="linkbtn" onclick="compareVersion('${fileId}', ${v.version_no}, ${latest})">مقارنة</button>
+          <button class="linkbtn" onclick="rollbackVersion('${fileId}', ${v.version_no})">استرجاع</button>
+        </div>
+      </div>
+    `).join("");
+  }catch(e){
+    box.textContent = "فشل تحميل الإصدارات.";
+  }
+}
+
+function rollbackVersion(fileId, versionNo){
+  postForm(`/versions/${fileId}/rollback`, { version_no: versionNo });
+}
+
+async function compareVersion(fileId, fromNo, toNo){
+  const res = await fetch(`/versions/${fileId}/compare?from=${fromNo}&to=${toNo}`);
+  const data = await res.json();
+  if(data.type === "sheet"){
+    toast(`تمت مقارنة ${data.diff.length} خلايا`);
+  }else{
+    toast("تمت المقارنة بنجاح");
+  }
+}
+
+/* =========================
+   PARTICIPANTS (المشاركون)
+========================= */
+async function openParticipants(fileId){
+  openModal("participantsModal");
+  const box = document.getElementById("participantsList");
+  box.textContent = "جاري التحميل...";
+  try{
+    const res = await fetch(`/api/files/${fileId}/participants`);
+    const data = await res.json();
+    const list = data.participants || [];
+    if(!list.length){
+      box.textContent = "لا يوجد مشاركون مسجلون.";
+      return;
+    }
+    box.innerHTML = list.map(p => `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:6px 0;border-bottom:1px solid var(--line, #eee)">
+        <div><strong>${escapeHtml(p.name || p.user_id)}</strong><br><span style="font-size:11px;color:var(--muted)">${escapeHtml(p.user_id)}</span></div>
+        <div style="font-size:11px;color:var(--muted);text-align:left">أول ظهور: ${escapeHtml(p.first_seen_at)}<br>آخر ظهور: ${escapeHtml(p.last_seen_at)}</div>
+      </div>
+    `).join("");
+  }catch(e){
+    box.textContent = "فشل تحميل المشاركين.";
+  }
+}
+
+/* =========================
+   CELL PERMISSIONS
+========================= */
+function openCellPermissions(fileId){
+  document.getElementById("cell_item_id").value = fileId;
+  openModal("cellPermModal");
+}
+
+function submitCellPermission(){
+  const item_id = document.getElementById("cell_item_id").value;
+  const sheet_name = document.getElementById("cell_sheet_name").value.trim();
+  const scope_type = document.getElementById("cell_scope_type").value;
+  const scope_value = document.getElementById("cell_scope_value").value.trim();
+  const target_type = document.getElementById("cell_target_type").value;
+  const target_value = document.getElementById("cell_target_value").value.trim();
+  const perm = document.getElementById("cell_perm").value;
+  if(!scope_value){ toast("أدخل النطاق"); return; }
+  postForm("/permissions/cell", {
+    item_type: "file",
+    item_id,
+    sheet_name,
+    scope_type,
+    scope_value,
+    target_type,
+    target_value,
+    perm
+  });
+}
+
+/* =========================
+   EXCEL LINKS
+========================= */
+let excelLinksMasterId = null;
+let excelLinksPickerFiles = [];
+let excelLinksSchemaValid = false;
+let excelLinksPreviewData = null;
+
+async function excelLinksRefreshPreview(){
+  const fileId = document.getElementById("excelLinksFileId").value;
+  const sheetName = (document.getElementById("excelLinksSheetSelect")?.value || "Sheet1").trim();
+  const headerMode = (document.getElementById("excelLinksHeaderMode")?.value || "auto").trim();
+  if(!fileId) return;
+  const statusEl = document.getElementById("excelLinksSchemaStatus");
+  const bizEl = document.getElementById("excelLinksBusinessCols");
+  const sysEl = document.getElementById("excelLinksSystemCols");
+  const tableEl = document.getElementById("excelLinksPreviewTable");
+  const btnPush = document.getElementById("btnPushSchema");
+  const btnAdd = document.getElementById("btnAddExcelChild");
+  statusEl.textContent = "جاري التحقق...";
+  bizEl.style.display = "block";
+  sysEl.style.display = "block";
+  excelLinksSchemaValid = false;
+  if(btnPush) btnPush.disabled = true;
+  if(btnAdd) btnAdd.disabled = true;
+  try {
+    const r = await fetch(`/api/files/${fileId}/links/schema-preview?sheet_name=${encodeURIComponent(sheetName)}&header_mode=${encodeURIComponent(headerMode)}`);
+    const data = await r.json();
+    excelLinksPreviewData = data;
+    if(data.ok && (data.business_columns || []).length > 0){
+      excelLinksSchemaValid = true;
+      statusEl.innerHTML = "✅ تم اكتشاف القالب بنجاح";
+      statusEl.style.color = "var(--green,green)";
+      document.getElementById("excelLinksBusinessColsList").textContent = (data.business_columns || []).join(", ") || "-";
+      document.getElementById("excelLinksSystemColsList").textContent = (data.system_columns || []).join(", ") || "-";
+      if((data.preview_rows || []).length > 0){
+        const cols = data.business_columns || [];
+        let tbl = "<table style='border-collapse:collapse;width:100%'><tr>";
+        for(const c of cols) tbl += `<th style='border:1px solid #ccc;padding:4px;text-align:right;white-space:nowrap'>${escapeHtml(c)}</th>`;
+        tbl += "</tr>";
+        for(const row of (data.preview_rows || []).slice(0,3)){
+          tbl += "<tr>";
+          for(const c of cols) tbl += `<td style='border:1px solid #ccc;padding:4px'>${escapeHtml(String(row[c] ?? ''))}</td>`;
+          tbl += "</tr>";
+        }
+        tbl += "</table>";
+        tableEl.innerHTML = tbl;
+      } else { tableEl.innerHTML = "<span style='color:var(--muted)'>لا توجد بيانات معاينة</span>"; }
+      if(btnPush) btnPush.disabled = false;
+      if(btnAdd) btnAdd.disabled = false;
+    } else {
+      statusEl.innerHTML = "❌ لم يتم العثور على عناوين صالحة";
+      statusEl.style.color = "var(--red,red)";
+      document.getElementById("excelLinksBusinessColsList").textContent = "-";
+      document.getElementById("excelLinksSystemColsList").textContent = (data.system_columns || []).join(", ") || "-";
+      tableEl.innerHTML = "<span style='color:var(--muted)'>ضع العناوين في الصف الأول أو اختر ورقة/صف أخرى</span>";
+    }
+  } catch(e){
+    statusEl.innerHTML = "❌ خطأ في التحقق";
+    statusEl.style.color = "var(--red,red)";
+    document.getElementById("excelLinksBusinessColsList").textContent = "-";
+    tableEl.innerHTML = "";
+  }
+}
+
+async function openExcelLinks(fileId){
+  document.getElementById("excelLinksFileId").value = fileId;
+  document.getElementById("excelLinksContent").textContent = "جاري التحميل...";
+  document.getElementById("excelLinksModeSelector").style.display = "none";
+  document.getElementById("excelLinksAsMaster").style.display = "none";
+  document.getElementById("excelLinksAsChild").style.display = "none";
+  document.getElementById("excelLinksSetChild").style.display = "none";
+  openModal("excelLinksModal");
+  try{
+    const [linkRes, pickerRes] = await Promise.all([
+      fetch(`/api/files/${fileId}/link-info`),
+      fetch(`/api/files/excel-picker?exclude=${encodeURIComponent(fileId)}`)
+    ]);
+    const ct = linkRes.headers.get("content-type") || "";
+    if(!ct.includes("application/json")){ throw new Error("استجابة غير صحيحة من الخادم. تحقق من تسجيل الدخول."); }
+    const data = await linkRes.json();
+    if(!linkRes.ok || !data.ok){ throw new Error(data.error || "فشل التحميل"); }
+    excelLinksMasterId = data.master_of || fileId;
+    const pickerData = await pickerRes.json();
+    excelLinksPickerFiles = (pickerData.files || []);
+    document.getElementById("excelLinksContent").innerHTML = `الملف: <b>${fileId}</b>`;
+    const isMaster = (data.children || []).length > 0;
+    const isChild = data.is_child;
+    if(isMaster){
+      document.getElementById("excelLinksAsMaster").style.display = "block";
+      document.getElementById("excelLinksModeSelector").style.display = "none";
+      document.getElementById("excelLinksSetChild").style.display = "none";
+      excelLinksLoadSheets(fileId, ()=>{ excelLinksRenderMaster(fileId, data); excelLinksRefreshPreview(); });
+    } else if(isChild){
+      document.getElementById("excelLinksAsChild").style.display = "block";
+      document.getElementById("excelLinksModeSelector").style.display = "none";
+      document.getElementById("excelLinksSetChild").style.display = "none";
+      excelLinksRenderChild(fileId, data);
+    } else {
+      document.getElementById("excelLinksContent").innerHTML += `<br><span style="color:var(--muted)">لا روابط. اختر تعيينه كملف رئيسي أو ملف فرعي.</span>`;
+      document.getElementById("excelLinksModeSelector").style.display = "block";
+      excelLinksPopulateMasterSelect(fileId);
+    }
+  }catch(e){
+    const msg = e.message || "فشل التحميل";
+    document.getElementById("excelLinksContent").textContent = "خطأ: " + (msg.indexOf("Unexpected") >= 0 ? "استجابة غير صحيحة من الخادم" : msg);
+  }
+}
+
+async function excelLinksLoadSheets(fileId, then){
+  try {
+    const r = await fetch(`/api/files/${fileId}/sheets`);
+    const d = await r.json();
+    const sel = document.getElementById("excelLinksSheetSelect");
+    if(sel){
+      sel.innerHTML = "";
+      const sheets = (d.sheets || ["Sheet1"]);
+      for(const s of sheets) sel.appendChild(new Option(s, s));
+    }
+    if(then) then();
+  } catch(e){ if(then) then(); }
+}
+
+function excelLinksSetMode(mode){
+  const fileId = document.getElementById("excelLinksFileId").value;
+  if(mode === "master"){
+    document.getElementById("excelLinksAsMaster").style.display = "block";
+    document.getElementById("excelLinksSetChild").style.display = "none";
+    document.getElementById("excelLinksChildrenList").innerHTML = "<div style='color:var(--muted)'>لا ملفات فرعية مرتبطة</div>";
+    excelLinksLoadSheets(fileId, ()=>{ excelLinksPopulateChildSelect(fileId); excelLinksRefreshPreview(); });
+  } else {
+    document.getElementById("excelLinksAsMaster").style.display = "none";
+    document.getElementById("excelLinksSetChild").style.display = "block";
+    excelLinksPopulateMasterSelect(fileId);
+  }
+}
+
+function excelLinksPopulateChildSelect(excludeId){
+  const sel = document.getElementById("excelLinksNewChildSelect");
+  sel.innerHTML = "<option value=''>اختر ملف فرعي...</option>";
+  for(const f of excelLinksPickerFiles){
+    if(f.file_id === excludeId) continue;
+    sel.appendChild(new Option((f.name || f.file_id), f.file_id));
+  }
+}
+
+function excelLinksPopulateMasterSelect(excludeId){
+  const sel = document.getElementById("excelLinksMasterSelect");
+  sel.innerHTML = "<option value=''>اختر ملف رئيسي...</option>";
+  for(const f of excelLinksPickerFiles){
+    if(f.file_id === excludeId) continue;
+    sel.appendChild(new Option((f.name || f.file_id), f.file_id));
+  }
+}
+
+function excelLinksRenderMaster(fileId, data){
+  const schema = data.schema;
+  const headerSel = document.getElementById("excelLinksHeaderMode");
+  if(headerSel && schema && schema.header_row_index){
+    const mode = schema.header_row_index >= 1 && schema.header_row_index <= 3 ? "row" + schema.header_row_index : "auto";
+    headerSel.value = mode;
+  }
+  let cols = [];
+  try {
+    const cj = schema?.columns_json;
+    cols = cj ? (typeof cj === "string" ? JSON.parse(cj || "[]") : (Array.isArray(cj) ? cj : [])) : [];
+  } catch(e){ cols = []; }
+  const sysCols = ["_row_uuid","_source_child_file_id","_source_user_id","_last_synced_at","_row_locked_at"];
+  const allCols = [...cols, ...sysCols];
+  const colStr = allCols.join(", ");
+  const schemaBox = document.getElementById("excelLinksSchemaBox");
+  if(schemaBox){ schemaBox.style.display = colStr ? "block" : "none"; }
+  const schemaColsEl = document.getElementById("excelLinksSchemaCols");
+  if(schemaColsEl){ schemaColsEl.textContent = colStr || "-"; }
+  excelLinksSchemaValid = cols.length > 0 && !cols.every(c => (c||"").startsWith("_"));
+  const children = data.children || [];
+  let html = children.length ? "" : "<div style='color:var(--muted)'>لا ملفات فرعية مرتبطة</div>";
+  for(const c of children){
+    let lastLog = (c.last_synced_at ? `آخر مزامنة: ${c.last_synced_at}` : "") + (c.last_sync_status ? ` (${c.last_sync_status})` : "");
+    if(c.last_error){ lastLog += ` <span style="color:var(--red,red)">— خطأ: ${c.last_error}</span>`; }
+    if(c.last_version_no){ lastLog += ` — نسخة رئيسي: v${c.last_version_no}`; }
+    html += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap">
+      <span>${c.child_file_id}</span>
+      <span style="font-size:11px;color:var(--muted)">${lastLog || '-'}</span>
+      <button class="linkbtn" onclick="syncExcelLink('${fileId}','${c.child_file_id}')">مزامنة الآن</button>
+      <button class="linkbtn red" onclick="unlinkExcelChild('${fileId}','${c.child_file_id}')">إلغاء ربط</button>
+    </div>`;
+  }
+  document.getElementById("excelLinksChildrenList").innerHTML = html;
+  excelLinksPopulateChildSelect(fileId);
+}
+
+async function pushMasterSchemaToChildren(){
+  const fileId = document.getElementById("excelLinksFileId").value;
+  if(!fileId){ toast("لا ملف محدد"); return; }
+  try {
+    const r = await fetch(`/api/files/${fileId}/links/push-schema`, { method: "POST", headers: { "Content-Type": "application/json" } });
+    const data = await r.json();
+    if(data.ok){ toast("تم نشر القالب إلى الملفات الفرعية"); openExcelLinks(fileId); }
+    else { toast(data.error || "فشل نشر القالب"); }
+  } catch(e){ toast("خطأ في الطلب"); }
+}
+
+function excelLinksRenderChild(fileId, data){
+  const cl = data.child_link || {};
+  const schema = data.child_schema;
+  let cols = [];
+  try {
+    const cj = schema?.columns_json;
+    cols = cj ? (typeof cj === "string" ? JSON.parse(cj || "[]") : (Array.isArray(cj) ? cj : [])) : [];
+  } catch(e){ cols = []; }
+  const sysCols = ["_row_uuid","_source_child_file_id","_source_user_id","_last_synced_at"];
+  document.getElementById("excelLinksChildSchemaBox").style.display = cols.length ? "block" : "none";
+  document.getElementById("excelLinksChildSchemaCols").textContent = [...cols, ...sysCols].join(", ") || "-";
+  document.getElementById("excelLinksChildStatus").innerHTML = `مرتبط بالملف الرئيسي: <b>${cl.master_file_id || '-'}</b>`;
+  const logs = data.sync_logs || [];
+  let logHtml = "";
+  if(logs.length){
+    const last = logs[0];
+    logHtml = `آخر مزامنة: ${last.synced_at || '-'} — إدخال: ${last.rows_inserted || 0}، تحديث: ${last.rows_updated || 0}`;
+    if(last.status === "error" && last.error_message){ logHtml += ` <span style="color:var(--red,red)">— خطأ: ${last.error_message}</span>`; }
+    if(last.version_no){ logHtml += ` — تم إنشاء نسخة للملف الرئيسي (v${last.version_no})`; }
+  }
+  document.getElementById("excelLinksChildSyncLogs").innerHTML = logHtml;
+}
+
+async function addExcelLinkChild(){
+  const masterId = document.getElementById("excelLinksFileId").value;
+  const childId = (document.getElementById("excelLinksNewChildSelect")?.value || "").trim();
+  const sheetName = (document.getElementById("excelLinksSheetSelect")?.value || "Sheet1").trim();
+  const headerMode = (document.getElementById("excelLinksHeaderMode")?.value || "auto").trim();
+  if(!childId){ toast("اختر ملف فرعي"); return; }
+  if(!excelLinksSchemaValid){ toast("لا يوجد قالب صالح. تأكد من وجود العناوين في الصف الأول."); return; }
+  try{
+    const res = await fetch(`/api/files/${masterId}/links`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ child_file_id: childId, sheet_name: sheetName, header_mode: headerMode })
+    });
+    const data = await res.json();
+    if(data.ok){ toast("تم إضافة الملف الفرعي وربطه"); openExcelLinks(masterId); }
+    else{ toast("فشل: " + (data.error || "غير معروف")); }
+  }catch(e){ toast("خطأ: " + e.message); }
+}
+
+async function syncExcelLink(masterId, childId){
+  try{
+    const res = await fetch(`/api/files/${masterId}/links/${childId}/sync`, { method: "POST" });
+    const ct = res.headers.get("content-type") || "";
+    if(!ct.includes("application/json")){ toast("استجابة غير صحيحة من الخادم"); return; }
+    const data = await res.json();
+    if(data.ok){
+      let msg = `تم المزامنة: ${data.rows_inserted || 0} إدخال، ${data.rows_updated || 0} تحديث`;
+      if(data.version_created){ msg += " — تم إنشاء نسخة للملف الرئيسي"; }
+      toast(msg);
+      openExcelLinks(masterId);
+    } else { toast("فشل: " + (data.error || "غير معروف")); }
+  }catch(e){ toast("خطأ: " + (String(e.message || e))); }
+}
+
+async function syncExcelLinkNow(){
+  const fileId = document.getElementById("excelLinksFileId").value;
+  const link = (await (await fetch(`/api/files/${fileId}/link-info`)).json());
+  const masterId = link.child_link?.master_file_id;
+  if(!masterId){ toast("لا يوجد ملف رئيسي مرتبط"); return; }
+  await syncExcelLink(masterId, fileId);
+}
+
+async function linkAsChildToMaster(){
+  const childId = document.getElementById("excelLinksFileId").value;
+  const masterId = (document.getElementById("excelLinksMasterSelect")?.value || "").trim();
+  if(!masterId){ toast("اختر الملف الرئيسي"); return; }
+  try{
+    const res = await fetch(`/api/files/${masterId}/links`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ child_file_id: childId })
+    });
+    const data = await res.json();
+    if(data.ok){ toast("تم الربط"); openExcelLinks(childId); }
+    else{ toast("فشل: " + (data.error || "غير معروف")); }
+  }catch(e){ toast("خطأ: " + e.message); }
+}
+
+async function unlinkExcelChild(masterId, childId){
+  if(!confirm("إيقاف المزامنة؟ (لن يُحذف المحتوى من الملف الرئيسي)")) return;
+  try{
+    const res = await fetch(`/api/files/${masterId}/links/${childId}`, { method: "DELETE" });
+    const data = await res.json();
+    if(data.ok){ toast("تم إلغاء الربط"); openExcelLinks(masterId); }
+    else{ toast("فشل: " + (data.error || "غير معروف")); }
+  }catch(e){ toast("خطأ: " + e.message); }
+}
+
+/* =========================
+   OWNERSHIP
+========================= */
+function openOwnership(fileId){
+  document.getElementById("ownership_item_id").value = fileId;
+  openModal("ownershipModal");
+}
+
+function submitOwnership(){
+  const item_id = document.getElementById("ownership_item_id").value;
+  const new_owner = document.getElementById("ownership_new_owner").value.trim();
+  const reason = document.getElementById("ownership_reason").value.trim();
+  const signature = document.getElementById("ownership_signature").value.trim();
+  if(!new_owner){ toast("أدخل المالك الجديد"); return; }
+  postForm(`/transfer/file/${item_id}`, {
+    new_owner,
+    reason,
+    signature,
+    include_children: "1"
+  });
+}
+
+/* =========================
+   ADVANCED SEARCH
+========================= */
+async function submitAdvancedSearch(){
+  const q = (document.getElementById("adv_q").value || "").trim();
+  const department = (document.getElementById("adv_department").value || "").trim();
+  if(!q){ toast("اكتب كلمة بحث"); return; }
+  const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&department=${encodeURIComponent(department)}`);
+  const data = await res.json();
+  const box = document.getElementById("searchResults");
+  const items = data.results || [];
+  if(!items.length){
+    box.textContent = "لا توجد نتائج.";
+    return;
+  }
+  box.innerHTML = items.map(r => `
+    <div style="margin-bottom:6px">
+      <a href="/editor/${r.item_id}">${r.title || r.item_id}</a>
+    </div>
+  `).join("");
+}
+
+/* =========================
+   SAFE: /shared might not exist
+========================= */
+document.querySelectorAll('a[href="/shared"]').forEach(a=>{
+  a.addEventListener("click",(e)=>{
+    // لو عندك route /shared ممتاز، لو ما عندك بنعطي تنبيه بدل 404 (اختياري)
+    // احذف هذا البلوك لو عندك /shared جاهز.
+    // e.preventDefault();
+    // toast("Route /shared غير مضاف في الباك-اند حاليا");
+  });
+});
+
+
+    let draggedItem = null;
+
+/* ===== DRAG START / END ===== */
+document.querySelectorAll("[draggable=true]").forEach(el => {
+  el.addEventListener("dragstart", e => {
+    draggedItem = {
+      id: el.dataset.id,
+      type: el.dataset.type
+    };
+    e.dataTransfer.effectAllowed = "move";
+  });
+
+  el.addEventListener("dragend", () => {
+    draggedItem = null;
+  });
+});
+
+/* ===== DROP ON FOLDER ===== */
+document.querySelectorAll(".folder-card").forEach(folder => {
+  folder.addEventListener("dragover", e => {
+    e.preventDefault();
+    folder.style.background = "#EEF3FF";
+  });
+
+  folder.addEventListener("dragleave", () => {
+    folder.style.background = "";
+  });
+
+  folder.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    folder.style.background = "";
+
+    if (!draggedItem) return;
+
+    // منع إسقاط المجلد داخل نفسه
+    if (draggedItem.type === "folder" && draggedItem.id === folder.dataset.id) {
+      toast("لا يمكن نقل المجلد داخل نفسه");
+      draggedItem = null;
+      return;
+    }
+
+    postForm(`/move/${draggedItem.type}/${draggedItem.id}`, {
+      target_folder: folder.dataset.id
+    });
+
+    draggedItem = null;
+  });
+});
+
+/* ===== DROP ON ROOT ===== */
+const wrapEl = document.querySelector(".wrap");
+
+wrapEl.addEventListener("dragover", e => {
+  e.preventDefault();
+});
+
+wrapEl.addEventListener("drop", e => {
+  // لو كان الإسقاط فوق بطاقة، نتركه لهاندلر البطاقة
+  if (e.target.closest(".folder-card") || e.target.closest(".file-card")) return;
+  if (!draggedItem) return;
+
+  postForm(`/move/${draggedItem.type}/${draggedItem.id}`, {
+    target_folder: "ROOT"
+  });
+
+  draggedItem = null;
+});
+
+/* ===== DROP ON BREADCRUMB ===== */
+document.querySelectorAll(".crumb-drop").forEach(a => {
+  a.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    a.style.textDecoration = "underline";
+  });
+
+  a.addEventListener("dragleave", () => {
+    a.style.textDecoration = "";
+  });
+
+  a.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    a.style.textDecoration = "";
+
+    if (!draggedItem) return;
+
+    postForm(`/move/${draggedItem.type}/${draggedItem.id}`, {
+      target_folder: a.dataset.folder
+    });
+
+    draggedItem = null;
+  });
+});
+
+/* =========================
+   MOVE PANEL (TREE)
+========================= */
+
+let movePanelItem = null;
+
+function openMovePanelFor(type, id){
+  movePanelItem = { type, id };
+  openMovePanel();
+}
+
+async function openMovePanel(){
+  if(!movePanelItem && draggedItem){
+    movePanelItem = draggedItem;
+  }
+  if(!movePanelItem){
+    toast("حدد عنصر للنقل أولاً");
+    return;
+  }
+
+  openModal("movePanelModal");
+
+  const box = document.getElementById("treeBox");
+  box.textContent = "جاري تحميل الشجرة...";
+
+  const res = await fetch("/api/folders/tree");
+  const data = await res.json();
+
+  box.innerHTML = renderTree(data.tree || []);
+}
+
+function renderTree(nodes, level = 0){
+  let html = "";
+  for(const n of nodes){
+    html += `
+      <div style="padding:6px;display:flex;align-items:center;margin-right:${level*14}px">
+        <button class="linkbtn"
+          style="flex:1;justify-content:flex-start"
+          onclick="movePanelToFolder('${n.folder_id}')">
+          📁 ${escapeHtml(n.name)}
+        </button>
+      </div>
+    `;
+    if(n.children && n.children.length){
+      html += renderTree(n.children, level + 1);
+    }
+  }
+  return html || `<div style="color:var(--muted);font-weight:800">لا توجد مجلدات</div>`;
+}
+
+function movePanelToFolder(folderId){
+  if(!movePanelItem) return;
+  postForm(`/move/${movePanelItem.type}/${movePanelItem.id}`, {
+    target_folder: folderId
+  });
+  movePanelItem = null;
+  closeModal("movePanelModal");
+}
+
+function movePanelToRoot(){
+  if(!movePanelItem) return;
+  postForm(`/move/${movePanelItem.type}/${movePanelItem.id}`, {
+    target_folder: "ROOT"
+  });
+  movePanelItem = null;
+  closeModal("movePanelModal");
+}
+
+function escapeHtml(s){
+  return String(s || "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[m]));
+}
+
+/* فتح ربط الملفات عند الوصول بـ ?openLinks=FILE_ID */
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const openLinks = params.get("openLinks");
+  if(openLinks){ openExcelLinks(openLinks); history.replaceState(null,"", window.location.pathname + (window.location.hash || "")); }
+})();
+
+</script>
+
+{% endblock %}

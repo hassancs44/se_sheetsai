@@ -1,0 +1,64 @@
+{
+  "presets": [
+    {
+      "id": "light",
+      "name": "فاتح (افتراضي)",
+      "mode": "light",
+      "primary": "#2563eb",
+      "secondary": "#64748b",
+      "background": "#f8fafc",
+      "cardBg": "#ffffff",
+      "textColor": "#0f172a"
+    },
+    {
+      "id": "dark",
+      "name": "داكن",
+      "mode": "dark",
+      "primary": "#3b82f6",
+      "secondary": "#94a3b8",
+      "background": "#0f172a",
+      "cardBg": "#1e293b",
+      "textColor": "#f1f5f9"
+    },
+    {
+      "id": "corporate-blue",
+      "name": "Corporate Blue",
+      "mode": "light",
+      "primary": "#1e40af",
+      "secondary": "#1e3a8a",
+      "background": "#eff6ff",
+      "cardBg": "#ffffff",
+      "textColor": "#1e3a8a"
+    },
+    {
+      "id": "dark-executive",
+      "name": "Dark Executive",
+      "mode": "dark",
+      "primary": "#60a5fa",
+      "secondary": "#818cf8",
+      "background": "#111827",
+      "cardBg": "#1f2937",
+      "textColor": "#e5e7eb"
+    },
+    {
+      "id": "minimal-light",
+      "name": "Minimal Light",
+      "mode": "light",
+      "primary": "#0f172a",
+      "secondary": "#475569",
+      "background": "#ffffff",
+      "cardBg": "#f8fafc",
+      "textColor": "#0f172a"
+    },
+    {
+      "id": "data-contrast",
+      "name": "Data Contrast",
+      "mode": "light",
+      "primary": "#059669",
+      "secondary": "#0d9488",
+      "background": "#ecfdf5",
+      "cardBg": "#ffffff",
+      "textColor": "#064e3b"
+    }
+  ]
+}

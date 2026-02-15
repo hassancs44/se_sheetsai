@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.bi-list-wrap { padding: 20px; max-width: 900px; margin: 0 auto; }
+.bi-list-wrap h2 { margin: 0 0 20px; font-size: 1.4rem; }
+.bi-card { background: #fff; border: 1px solid #E5EAF3; border-radius: 12px; padding: 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.bi-card h3 { margin: 0; font-size: 1rem; }
+.bi-card .meta { color: #64748B; font-size: 0.9rem; }
+.bi-card .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.bi-card .actions a, .bi-card .actions button { padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 700; border: none; cursor: pointer; font-size: 0.9rem; }
+.bi-card .actions a.view { background: #1f56d9; color: #fff; }
+.bi-card .actions a.edit { background: #F1F5F9; color: #334155; }
+.bi-list-wrap .back { display: inline-block; margin-bottom: 16px; color: #64748B; font-weight: 700; text-decoration: none; }
+</style>
+<div class="bi-list-wrap" dir="rtl">
+  <a href="{{ url_for('dashboard') }}" class="back">← العودة للأقراص</a>
+  <h2>لوحات BI</h2>
+  {% for d in dashboards %}
+  <div class="bi-card">
+    <div>
+      <h3>{{ d.title or d.internal_id }}</h3>
+      <p class="meta">المعرّف: {{ d.internal_id }} · ملف: {{ d.linked_file_id or '—' }}</p>
+    </div>
+    <div class="actions">
+      <a href="{{ url_for('bi_dashboard_view', internal_id=d.internal_id) }}" class="view">عرض</a>
+      <a href="{{ url_for('bi_studio_dashboard', internal_id=d.internal_id) }}" class="edit">تحرير</a>
+    </div>
+  </div>
+  {% else %}
+  <p>لا توجد لوحات. أنشئ لوحة من ملف Excel (زر «إنشاء لوحة» في صفحة الملف).</p>
+  {% endfor %}
+  <p style="margin-top: 24px;"><a href="{{ url_for('data_panel_home') }}">البوابة</a> | <a href="{{ url_for('bi_admin') }}">إدارة BI</a></p>
+</div>
+{% endblock %}

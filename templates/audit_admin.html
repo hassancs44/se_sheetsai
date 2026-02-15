@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سجل التدقيق | سفنز درايف</title>
+<style>
+body{font-family:system-ui,Segoe UI,Arial;margin:0;background:#F6FAFF;color:#0B1220;min-height:100vh}
+.app-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E5EAF3}
+.app-bar .brand-logo{width:36px;height:36px;object-fit:contain;border-radius:8px}
+.app-bar h2{margin:0;font-size:1.1rem}
+.wrap{max-width:1200px;margin:22px auto;padding:0 18px;width:100%}
+.panel{background:#fff;border:1px solid #E5EAF3;border-radius:14px;padding:14px;margin-bottom:14px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{padding:10px;border-bottom:1px solid #E5EAF3;font-size:12px;text-align:right;vertical-align:top}
+th{background:#FBFCFF}
+code{font-size:11px;white-space:pre-wrap;word-break:break-all}
+@media (max-width:768px){ .wrap{padding:0 12px} .app-bar{padding:10px 12px} }
+@media (min-width:1400px){ .wrap{max-width:1400px} }
+</style>
+</head>
+<body>
+<div class="app-bar">
+  <img src="/static/7s.jpg" alt="سفنز درايف" class="brand-logo">
+  <h2>سجل التدقيق | سفنز درايف</h2>
+</div>
+<div class="wrap">
+  <div class="panel">
+    <h3 style="margin:0 0 10px">سجل التدقيق</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>الوقت</th>
+          <th>الحدث</th>
+          <th>الفاعل</th>
+          <th>العنصر</th>
+          <th>السياق</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.created_at }}</td>
+          <td>{{ r.event_type }}</td>
+          <td>{{ r.actor }} ({{ r.actor_role }})</td>
+          <td>{{ r.item_type }}: {{ r.item_id }}</td>
+          <td><code>{{ r.context_json }}</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:14px"><a href="{{ url_for('dashboard') }}">← العودة إلى الأقراص</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,571 @@
+{% extends "layout.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --bg:#F6FAFF;
+  --card:#ffffff;
+  --ink:#0B1220;
+  --muted:#64748B;
+  --line:#E5EAF3;
+  --brand:#2F6AFF;
+  --brand2:#1f56d9;
+  --ok:#16A34A;
+  --warn:#F59E0B;
+  --danger:#E11D48;
+  --radius:16px;
+  --shadow:0 10px 25px rgba(2,6,23,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Arial;
+  background:var(--bg);
+  color:var(--ink);
+}
+a{color:inherit}
+.app{display:flex; min-height:100vh;}
+
+.sidebar{
+  width:290px;
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:16px;
+}
+.sb-title{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:12px;
+}
+.sb-title h2{margin:0; font-size:16px;}
+.sb-badge{
+  font-size:12px; font-weight:900;
+  background:#EEF3FF; color:var(--brand2);
+  padding:6px 10px; border-radius:999px;
+}
+.nav a{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:900;
+  margin-bottom:6px;
+  color:var(--ink);
+  text-decoration:none;
+}
+.nav a:hover{background:#EEF3FF}
+.nav a.active{background:#EEF3FF; color:var(--brand2);}
+.sb-meta{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#FBFCFF;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.sb-meta b{color:var(--ink)}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-weight:900;
+  cursor:pointer;
+  text-decoration:none;
+  color:var(--ink);
+}
+.btn.primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  border:none; color:#fff;
+}
+.btn.ghost{
+  background:#F3F6FF;
+  border:1px solid #E6ECFF;
+  color:#243B7B;
+}
+.main{flex:1; padding:22px;}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:12px;
+}
+.h-left h1{margin:0; font-size:18px;}
+.h-left p{margin:6px 0 0; color:var(--muted); font-size:13px; max-width:850px}
+.h-actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+
+.tabs{
+  display:flex; gap:10px; flex-wrap:wrap;
+  margin:12px 0 14px;
+}
+.tab{
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-weight:1000;
+  cursor:pointer;
+}
+.tab.active{
+  background:#EEF3FF;
+  border-color:#D9E3FF;
+  color:var(--brand2);
+}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin-bottom:14px;
+}
+
+.alerts{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.alert{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:13px;
+  font-weight:800;
+}
+.alert.warn{ background:#FFF7ED; border-color:#FED7AA; color:#9A3412; }
+.alert.info{ background:#EFF6FF; border-color:#BFDBFE; color:#1D4ED8; }
+
+.filters{
+  display:grid;
+  grid-template-columns:repeat(12, 1fr);
+  gap:10px;
+  align-items:end;
+}
+.fg{grid-column:span 3;}
+.fg.w2{grid-column:span 2;}
+.fg.w4{grid-column:span 4;}
+.fg.w6{grid-column:span 6;}
+label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px;}
+select,input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  outline:none;
+}
+.small-note{color:var(--muted); font-size:12px; margin-top:8px;}
+
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+  gap:12px;
+}
+.kpi{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px;
+  background:linear-gradient(180deg,#fff,#FBFCFF);
+}
+.kpi .v{font-size:22px; font-weight:1000;}
+.kpi .l{margin-top:6px; font-size:12px; color:var(--muted);}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:12px;
+}
+.card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+.card h3{margin:0 0 10px; font-size:13px; color:#1f2a44;}
+.c6{grid-column:span 6;}
+.c4{grid-column:span 4;}
+.c8{grid-column:span 8;}
+.c12{grid-column:span 12;}
+
+.table-wrap{overflow:auto; border:1px solid var(--line); border-radius:14px;}
+table{width:100%; border-collapse:collapse; background:#fff; min-width:900px;}
+th,td{padding:10px 10px; border-bottom:1px solid var(--line); font-size:12px; text-align:right;}
+th{background:#FBFCFF; color:#334155; position:sticky; top:0;}
+tr:hover td{background:#F8FBFF;}
+
+.empty{
+  padding:12px;
+  border-radius:12px;
+  background:#FFF7ED;
+  border:1px solid #FED7AA;
+  color:#9A3412;
+  font-size:13px;
+}
+
+@media(max-width:1000px){
+  .sidebar{display:none}
+  .filters{grid-template-columns:repeat(6, 1fr);}
+  .fg{grid-column:span 3;}
+  .fg.w2{grid-column:span 3;}
+  .fg.w4,.fg.w6{grid-column:span 6;}
+  .c6,.c4,.c8{grid-column:span 12;}
+}
+</style>
+<div class="app">
+
+  <main class="main">
+
+    <div class="header">
+      <div class="h-left">
+        <h1>{{ dashboard.name }}</h1>
+        <p>{{ dashboard.description }} — الفلاتر تؤثر على جميع المؤشرات والرسوم والجدول.</p>
+      </div>
+      <div class="h-actions">
+        <a class="btn ghost" href="/data-panel">رجوع</a>
+        <button class="btn primary" type="button" onclick="togglePanel('filtersPanel')"> فلاتر</button>
+        <button class="btn" type="button" onclick="togglePanel('tablePanel')"> جدول</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="overview" onclick="switchTab('overview', this)">نظرة عامة</button>
+      <button class="tab" data-tab="sales" onclick="switchTab('sales', this)">المبيعات والربحية</button>
+      <button class="tab" data-tab="products" onclick="switchTab('products', this)">المنتجات</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div id="filtersPanel" class="panel">
+      <form method="GET" action="">
+        <div class="filters">
+          <div class="fg w4">
+            <label>بحث في المنتج</label>
+            <input name="product" value="{{ filters.product }}" placeholder="مثال: فالين / غيمة / ظبي..." />
+          </div>
+
+          <div class="fg">
+            <label>الفرع</label>
+            <select name="branch">
+              <option value="">الكل</option>
+              {% for x in filter_options.branches %}
+                <option value="{{ x }}" {% if filters.branch == x %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>الفئة</label>
+            <select name="category">
+              <option value="">الكل</option>
+              {% for x in filter_options.categories %}
+                <option value="{{ x }}" {% if filters.category == x %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>الحجم</label>
+            <select name="size">
+              <option value="">الكل</option>
+              {% for x in filter_options.sizes %}
+                <option value="{{ x }}" {% if filters.size == x %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>نوع العملية</label>
+            <select name="op">
+              <option value="">الكل</option>
+              {% for x in filter_options.ops %}
+                <option value="{{ x }}" {% if filters.op == x %}selected{% endif %}>{{ x }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>الشهر</label>
+            <select name="month" id="filter-month">
+              <option value="all" {% if filters.month in ["", "all"] %}selected{% endif %}>الكل</option>
+              <option value="1" {% if filters.month == "1" %}selected{% endif %}>يناير</option>
+              <option value="2" {% if filters.month == "2" %}selected{% endif %}>فبراير</option>
+              <option value="3" {% if filters.month == "3" %}selected{% endif %}>مارس</option>
+              <option value="4" {% if filters.month == "4" %}selected{% endif %}>أبريل</option>
+              <option value="5" {% if filters.month == "5" %}selected{% endif %}>مايو</option>
+              <option value="6" {% if filters.month == "6" %}selected{% endif %}>يونيو</option>
+              <option value="7" {% if filters.month == "7" %}selected{% endif %}>يوليو</option>
+              <option value="8" {% if filters.month == "8" %}selected{% endif %}>أغسطس</option>
+              <option value="9" {% if filters.month == "9" %}selected{% endif %}>سبتمبر</option>
+              <option value="10" {% if filters.month == "10" %}selected{% endif %}>أكتوبر</option>
+              <option value="11" {% if filters.month == "11" %}selected{% endif %}>نوفمبر</option>
+              <option value="12" {% if filters.month == "12" %}selected{% endif %}>ديسمبر</option>
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>الفصل</label>
+            <select name="season" id="filter-season">
+              <option value="all" {% if filters.season in ["", "all"] %}selected{% endif %}>الكل</option>
+              <option value="winter" {% if filters.season == "winter" %}selected{% endif %}>الشتاء</option>
+              <option value="spring" {% if filters.season == "spring" %}selected{% endif %}>الربيع</option>
+              <option value="summer" {% if filters.season == "summer" %}selected{% endif %}>الصيف</option>
+              <option value="autumn" {% if filters.season == "autumn" %}selected{% endif %}>الخريف</option>
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>تبديل / جديد</label>
+            <select name="change_type" id="filter-change-type">
+              <option value="all" {% if filters.change_type in ["", "all"] %}selected{% endif %}>الكل</option>
+              <option value="new" {% if filters.change_type == "new" %}selected{% endif %}>جديد</option>
+              <option value="replacement" {% if filters.change_type == "replacement" %}selected{% endif %}>تبديل</option>
+            </select>
+          </div>
+
+          <div class="fg w2">
+            <label>من تاريخ</label>
+            <input type="date" name="from" value="{{ filters.from }}" />
+          </div>
+
+          <div class="fg w2">
+            <label>إلى تاريخ</label>
+            <input type="date" name="to" value="{{ filters.to }}" />
+          </div>
+
+          <div class="fg w2" style="display:flex; gap:8px;">
+            <button class="btn primary" type="submit">تطبيق</button>
+            <a class="btn" href="/data-panel/{{ dashboard.dashboard_id }}">مسح</a>
+          </div>
+        </div>
+        <div class="small-note">ملاحظة: عند اختيار الفرع/الفئة/التاريخ… يتم تحديث كل المؤشرات والرسوم تلقائياً.</div>
+      </form>
+    </div>
+
+    {% if alerts and alerts|length > 0 %}
+    <div class="panel">
+      <div class="alerts">
+        {% for a in alerts %}
+          <div class="alert {{ a.level }}">{{ a.message }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- KPIs -->
+    <div class="panel">
+      <div class="kpis">
+        {% for k in kpis %}
+        <div class="kpi">
+          <div class="v">
+            {% if k.format == 'currency' %}
+              {{ "{:,.0f}".format(k.value) }} SAR
+            {% elif k.format == 'percent' %}
+              {{ "{:.2f}".format(k.value) }} %
+            {% else %}
+              {{ "{:,}".format(k.value) }}
+            {% endif %}
+          </div>
+          <div class="l">{{ k.label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <section id="tab_overview">
+      <div class="grid">
+        <div class="card c8">
+          <h3> الاتجاه اليومي: المبيعات (بدون الضريبة) + الربح</h3>
+          <canvas id="trendChart"></canvas>
+          <div id="trendEmpty" class="empty" style="display:none">لا توجد بيانات كافية للاتجاه (جرّب توسيع المدة أو إزالة فلتر).</div>
+        </div>
+
+        <div class="card c4">
+          <h3> توزيع الفئات (مبيعات)</h3>
+          <canvas id="catsChart"></canvas>
+          <div id="catsEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+
+        <div class="card c4">
+          <h3>️ توزيع الأحجام (كمية)</h3>
+          <canvas id="sizesChart"></canvas>
+          <div id="sizesEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+
+        <div class="card c4">
+          <h3> نوع العملية (كمية)</h3>
+          <canvas id="opsChart"></canvas>
+          <div id="opsEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+
+        <div class="card c4">
+          <h3> أعلى الفروع (مبيعات)</h3>
+          <canvas id="branchesChart"></canvas>
+          <div id="branchesEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: SALES -->
+    <section id="tab_sales" style="display:none">
+      <div class="grid">
+        <div class="card c6">
+          <h3> هامش الربح حسب الفئة (%)</h3>
+          <canvas id="marginChart"></canvas>
+          <div id="marginEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+
+        <div class="card c6">
+          <h3> أفضل المنتجات (مبيعات بدون الضريبة)</h3>
+          <canvas id="topProductsChart"></canvas>
+          <div id="topProductsEmpty" class="empty" style="display:none">لا توجد بيانات.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: PRODUCTS -->
+    <section id="tab_products" style="display:none">
+      <div class="panel" id="tablePanel">
+        <h3 style="margin:0 0 10px;"> آخر 50 عملية (بعد الفلترة)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                {% for c in table_cols %}
+                <th>{{ c }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in table_rows %}
+              <tr>
+                {% for c in table_cols %}
+                  <td>{{ r[c] }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const CH = {{ charts_json | safe }};
+
+  function togglePanel(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.display = (el.style.display === "none") ? "" : "none";
+  }
+  function switchTab(name, btn){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+
+    const map = {
+      overview: "tab_overview",
+      sales: "tab_sales",
+      products: "tab_products"
+    };
+    Object.values(map).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.style.display = "none";
+    });
+    document.getElementById(map[name]).style.display = "";
+  }
+
+  function empty(canvasId, emptyId){
+    const cvs = document.getElementById(canvasId);
+    if(cvs) cvs.style.display = "none";
+    const e = document.getElementById(emptyId);
+    if(e) e.style.display = "block";
+  }
+
+  // Trend: sales + profit
+  if(!CH.trend_labels || !CH.trend_labels.length){
+    empty("trendChart","trendEmpty");
+  }else{
+    new Chart(document.getElementById("trendChart"),{
+      type:"line",
+      data:{
+        labels: CH.trend_labels,
+        datasets:[
+          { label:"المبيعات (بدون)", data: CH.trend_sales, tension:.35 },
+          { label:"الربح", data: CH.trend_profit, tension:.35 }
+        ]
+      }
+    });
+  }
+
+  // Categories
+  if(!CH.cats_labels || !CH.cats_labels.length){
+    empty("catsChart","catsEmpty");
+  }else{
+    new Chart(document.getElementById("catsChart"),{
+      type:"pie",
+      data:{ labels: CH.cats_labels, datasets:[{ data: CH.cats_values }] }
+    });
+  }
+
+  // Sizes
+  if(!CH.sizes_labels || !CH.sizes_labels.length){
+    empty("sizesChart","sizesEmpty");
+  }else{
+    new Chart(document.getElementById("sizesChart"),{
+      type:"bar",
+      data:{ labels: CH.sizes_labels, datasets:[{ label:"الكمية", data: CH.sizes_values }] }
+    });
+  }
+
+  // Ops
+  if(!CH.ops_labels || !CH.ops_labels.length){
+    empty("opsChart","opsEmpty");
+  }else{
+    new Chart(document.getElementById("opsChart"),{
+      type:"doughnut",
+      data:{ labels: CH.ops_labels, datasets:[{ data: CH.ops_values }] }
+    });
+  }
+
+  // Branches
+  if(!CH.branches_labels || !CH.branches_labels.length){
+    empty("branchesChart","branchesEmpty");
+  }else{
+    new Chart(document.getElementById("branchesChart"),{
+      type:"bar",
+      data:{ labels: CH.branches_labels, datasets:[{ label:"المبيعات (بدون)", data: CH.branches_values }] }
+    });
+  }
+
+  // Margin
+  if(!CH.margin_labels || !CH.margin_labels.length){
+    empty("marginChart","marginEmpty");
+  }else{
+    new Chart(document.getElementById("marginChart"),{
+      type:"bar",
+      data:{ labels: CH.margin_labels, datasets:[{ label:"الهامش %", data: CH.margin_values }] }
+    });
+  }
+
+  // Top Products
+  if(!CH.top_products_labels || !CH.top_products_labels.length){
+    empty("topProductsChart","topProductsEmpty");
+  }else{
+    new Chart(document.getElementById("topProductsChart"),{
+      type:"bar",
+      data:{ labels: CH.top_products_labels, datasets:[{ label:"مبيعات (بدون)", data: CH.top_products_values }] }
+    });
+  }
+</script>
+
+{% endblock %}

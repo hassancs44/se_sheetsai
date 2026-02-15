@@ -1,0 +1,7 @@
+{# Reusable nav fragment: same rules as layout.html sidebar. Include with {% include "partials/navbar.html" %} #}
+<a href="/dashboard">📁 الأقراص</a>
+<a href="/shared">🔗 المشاركة</a>
+<a href="/trash">🗑 سلة المهملات</a>
+{% if can_access_bi %}<a href="/data-panel">📊 بوابة لوحات البيانات</a>{% endif %}
+{% if role == "admin" %}<a href="/bi/admin">⚙ إعداد BI</a>{% endif %}
+<hr><a href="/logout">🚪 تسجيل الخروج</a>

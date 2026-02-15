@@ -1,0 +1,75 @@
+# SE_SHEETSAI — النظام الكامل من المسار C:\py\se_sheetsai
+# التشغيل: من مجلد المشروع نفّذ أولاً: .\scripts\ensure-dirs.ps1
+# ثم: docker compose -f docker-compose.full-stack.yml up -d
+#
+# كل البيانات والتشغيل تحت نفس المسار (المشروع + البيانات).
+
+services:
+  app:
+    build: .
+    image: se-sheetsai:latest
+    container_name: sheetsai_app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # من داخل Docker يستدعي OnlyOffice التطبيق على اسم الخدمة
+      - BASE_URL=${BASE_URL:-http://app:5000}
+      - ONLYOFFICE_SERVER=http://onlyoffice:80
+      - DB_PATH=/app/state/database.db
+      - DB_FALLBACK_PATH=/app/state/database_runtime.db
+      - BI_RUNTIME_ENGINE=${BI_RUNTIME_ENGINE:-sqlite}
+      - BI_RUNTIME_DB_PATH=/app/state/bi_runtime.db
+      - BI_POSTGRES_HOST=postgres
+      - BI_POSTGRES_PORT=5432
+      - BI_POSTGRES_DB=${BI_POSTGRES_DB:-sheetsai_bi}
+      - BI_POSTGRES_USER=${BI_POSTGRES_USER:-sheetsai_user}
+      - BI_POSTGRES_PASSWORD=${BI_POSTGRES_PASSWORD:-strongpassword}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./sheets:/app/sheets
+      - ./uploads:/app/uploads
+      - ./versions:/app/versions
+      - ./archive:/app/archive
+      - ./logs:/app/logs
+      - ./state:/app/state
+      - ./data:/app/data
+    depends_on:
+      onlyoffice:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: sheetsai_onlyoffice
+    restart: unless-stopped
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-ONLYOFFICE_SECRET}
+      - JWT_HEADER=Authorization
+    ports:
+      - "8082:80"
+    volumes:
+      - ./onlyoffice_data:/var/www/onlyoffice/Data
+      - ./onlyoffice_logs:/var/log/onlyoffice
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: sheetsai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BI_POSTGRES_DB:-sheetsai_bi}
+      POSTGRES_USER: ${BI_POSTGRES_USER:-sheetsai_user}
+      POSTGRES_PASSWORD: ${BI_POSTGRES_PASSWORD:-strongpassword}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BI_POSTGRES_USER:-sheetsai_user} -d ${BI_POSTGRES_DB:-sheetsai_bi}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

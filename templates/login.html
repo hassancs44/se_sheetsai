@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>تسجيل الدخول | سفنز درايف</title>
+
+<style>
+  :root{
+    --bg1:#F6FAFF;
+    --bg2:#E9F2FF;
+    --ink:#0B1220;
+    --muted:#64748B;
+    --card:#FFFFFF;
+    --line:rgba(2,6,23,.08);
+    --brand:#2F6AFF;
+    --brand2:#1F5CE6;
+    --danger:#E11D48;
+    --shadow: 0 18px 45px rgba(2,6,23,.14);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", Arial;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(1200px 700px at 20% 20%, rgba(47,106,255,.16), transparent 55%),
+      radial-gradient(900px 600px at 80% 70%, rgba(31,92,230,.12), transparent 55%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    padding:24px;
+  }
+  .card{
+    width:min(420px, 100%);
+    background:rgba(255,255,255,.85);
+    backdrop-filter: blur(10px);
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .head{
+    padding:18px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .logo-img{ width:40px; height:40px; border-radius:10px; object-fit:contain; }
+  @media (max-width:480px){ .card{width:100%;} .logo-img{width:32px;height:32px;} }
+  @media (min-width:1280px){ .card{max-width:440px;} }
+  .title{font-weight:800}
+  .sub{color:var(--muted); font-size:13px}
+  .body{padding:20px}
+  .field{margin-top:12px}
+  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
+  input{
+    width:100%;
+    padding:12px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    outline:none;
+    font-size:14px;
+    background:#fff;
+  }
+  input:focus{
+    border-color: rgba(47,106,255,.55);
+    box-shadow: 0 0 0 4px rgba(47,106,255,.12);
+  }
+  .row{
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+    margin-top:12px;
+  }
+  .btn{
+    width:100%;
+    padding:12px 14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg, var(--brand), var(--brand2));
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s transform ease;
+  }
+  .btn:active{transform:scale(.98)}
+  .error{
+    margin-top:12px;
+    padding:10px 12px;
+    border-radius:12px;
+    background: rgba(225,29,72,.08);
+    border:1px solid rgba(225,29,72,.2);
+    color:var(--danger);
+    font-size:13px;
+  }
+  .foot{
+    padding:14px 20px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:12px;
+  }
+</style>
+
+<script>
+  // تحسين UX: منع ارسال الفورم اذا الحقول فاضية
+  function validateForm(){
+    const u = document.querySelector('[name="username"]').value.trim();
+    const p = document.querySelector('[name="password"]').value.trim();
+    if(!u || !p){
+      alert("اكتب اسم المستخدم وكلمة المرور");
+      return false;
+    }
+    return true;
+  }
+</script>
+</head>
+
+<body>
+  <div class="card">
+    <div class="head">
+      <div class="brand">
+        <img src="/static/7s.jpg" alt="سفنز درايف" class="logo-img">
+        <div>
+          <div class="title">سفنز درايف</div>
+          <div class="sub">نظام إدارة الملفات والمستندات الداخلي</div>
+        </div>
+      </div>
+      <div class="sub">v1</div>
+    </div>
+
+    <div class="body">
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="/login" onsubmit="return validateForm()">
+        <div class="field">
+          <label>البريد الإلكتروني</label>
+          <input name="username" autocomplete="username" placeholder="البريد الإلكتروني الوظيفي" />
+        </div>
+
+        <div class="field">
+          <label>كلمة المرور</label>
+          <input name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+
+        <div class="row">
+          <button class="btn" type="submit">تسجيل الدخول</button>
+        </div>
+      </form>
+    </div>
+
+
+  </div>
+</body>
+</html>

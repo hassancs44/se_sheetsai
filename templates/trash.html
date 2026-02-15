@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+:root{
+  --bg:#F6FAFF;
+  --card:#ffffff;
+  --line:#E5EAF3;
+  --primary:#2F6AFF;
+  --primary-dark:#1E4FCC;
+  --danger:#E5484D;
+  --text:#0B1220;
+  --muted:#6B7C93;
+  --radius:14px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, "Segoe UI", Arial;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+}
+
+.sidebar{
+  width:220px;
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:16px;
+  min-height:100vh;
+}
+.sidebar a{display:block; margin:6px 0; text-decoration:none; color:inherit;}
+.main{flex:1;}
+
+/* ===== Header ===== */
+.header{
+  background:#fff;
+  padding:18px 22px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.header h1{
+  margin:0;
+  font-size:20px;
+  font-weight:800;
+  color:var(--primary);
+}
+
+/* ===== Container ===== */
+.container{
+  max-width:900px;
+  margin:24px auto;
+  padding:0 18px;
+}
+
+/* ===== Section ===== */
+.section{
+  margin-bottom:28px;
+}
+
+.section h3{
+  margin:0 0 14px;
+  font-size:16px;
+  font-weight:700;
+  color:#1E2A3A;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* ===== Items ===== */
+.item{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 8px 22px rgba(15,23,42,.06);
+  transition:.25s;
+}
+
+.item:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 28px rgba(15,23,42,.10);
+}
+
+.item-name{
+  font-weight:600;
+  font-size:15px;
+  color:#0B1220;
+  word-break:break-word;
+}
+
+/* ===== Buttons ===== */
+.actions form{
+  margin:0;
+}
+
+.restore-btn{
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border:none;
+  color:#fff;
+  padding:8px 14px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.restore-btn:hover{
+  opacity:.9;
+  transform:scale(1.04);
+}
+
+/* ===== Empty State ===== */
+.empty{
+  background:#fff;
+  border:1px dashed var(--line);
+  padding:22px;
+  border-radius:var(--radius);
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* ===== Back ===== */
+.back{
+  display:inline-block;
+  margin-top:18px;
+  text-decoration:none;
+  font-weight:700;
+  color:var(--primary);
+}
+
+.back:hover{
+  text-decoration:underline;
+}
+</style>
+
+<div class="header" style="display:flex;justify-content:space-between;align-items:center;">
+  <h1>🗑 المهملات</h1>
+  <a href="{{ url_for('dashboard') }}" class="back">← العودة إلى الأقراص</a>
+</div>
+
+<div class="container">
+
+  <!-- ===== Folders ===== -->
+  <div class="section">
+    <h3> المجلدات</h3>
+
+    {% if folders %}
+      {% for f in folders %}
+      <div class="item">
+        <div class="item-name">{{ f.name }}</div>
+        <div class="actions">
+          <form method="POST" action="{{ url_for('restore_item', item_type='folder', item_id=f.folder_id) }}">
+            <button class="restore-btn">استعادة</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">لا توجد مجلدات في المهملات</div>
+    {% endif %}
+  </div>
+
+  <!-- ===== Files ===== -->
+  <div class="section">
+    <h3> الملفات</h3>
+
+    {% if files %}
+      {% for f in files %}
+      <div class="item">
+        <div class="item-name">{{ f.name }}</div>
+        <div class="actions">
+          <form method="POST" action="{{ url_for('restore_item', item_type='file', item_id=f.file_id) }}">
+            <button class="restore-btn">استعادة</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">لا توجد ملفات في المهملات</div>
+    {% endif %}
+  </div>
+
+  <a href="{{ url_for('dashboard') }}" class="back">← العودة إلى الأقراص</a>
+
+</div>
+
+{% endblock %}

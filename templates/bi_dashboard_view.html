@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='bi/ui/bi-ui.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='bi/skeleton.css') }}">
+<div class="bi-dashboard-wrap" id="bi-dashboard-wrap" data-bi-theme="{{ theme_mode }}" dir="rtl"
+     data-can-export="{{ '1' if can_export else '0' }}"
+     data-no-print="{{ '1' if no_print else '0' }}"
+     data-no-copy="{{ '1' if no_copy else '0' }}">
+  {% if dashboard_filters %}
+  <div class="bi-filter-bar" id="bi-filter-bar">
+    {% for f in dashboard_filters %}
+    {% set cfg = f.config or {} %}
+    {% set opts = cfg.options or cfg.values or [] %}
+    <div class="bi-filter-item">
+      <label for="bi-filter-{{ f.filter_key }}">{{ f.label or f.filter_key }}</label>
+      {% if f.filter_type == 'dropdown' and opts %}
+      <select id="bi-filter-{{ f.filter_key }}" class="bi-select bi-filter-input" data-filter-key="{{ f.filter_key }}">
+        <option value="">— الكل —</option>
+        {% for opt in opts %}
+        <option value="{{ opt.get('value', opt) if opt is mapping else opt }}">{{ opt.get('label', opt) if opt is mapping else opt }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+      <input type="text" id="bi-filter-{{ f.filter_key }}" class="bi-input bi-filter-input" data-filter-key="{{ f.filter_key }}" placeholder="{{ f.label or f.filter_key }}">
+      {% endif %}
+    </div>
+    {% endfor %}
+    <button type="button" id="bi-filter-apply" class="bi-btn bi-btn-primary">تطبيق</button>
+  </div>
+  {% endif %}
+  <div class="bi-toolbar">
+    <a href="{{ url_for('dashboard') }}" class="bi-btn bi-btn-secondary">← العودة للوحة التحكم</a>
+    <a href="{{ url_for('bi_index') }}" class="bi-link" style="font-weight:800;">← لوحات BI</a>
+    {% if can_edit %}
+    <a href="{{ url_for('bi_studio_dashboard', internal_id=internal_id) }}" class="bi-link">تحرير</a>
+    <button type="button" id="bi-duplicate-btn" class="bi-btn bi-btn-secondary">نسخ اللوحة</button>
+    {% endif %}
+    {% if is_admin %}
+    <a href="{{ url_for('bi_admin') }}" class="bi-text-muted" style="text-decoration:none;">إدارة</a>
+    {% endif %}
+    <a href="{{ url_for('data_panel_home') }}" class="bi-text-muted" style="text-decoration:none;">البوابة</a>
+    <span class="bi-title">{{ title }}</span>
+    {% if can_export %}
+    <div class="bi-export-dropdown">
+      <a href="{{ url_for('bi_export', dash_id=internal_id) }}?format=csv" class="bi-btn bi-btn-secondary">CSV</a>
+      <a href="{{ url_for('bi_export', dash_id=internal_id) }}?format=xlsx" class="bi-btn bi-btn-secondary">XLSX</a>
+      <a href="{{ url_for('bi_export', dash_id=internal_id) }}?format=pdf" class="bi-btn bi-btn-secondary">PDF</a>
+      <button type="button" id="bi-export-png-btn" class="bi-btn bi-btn-secondary">PNG (رسم)</button>
+    </div>
+    {% endif %}
+  </div>
+  <div class="bi-grid-wrap {% if no_copy %}bi-no-copy{% endif %} {% if no_print %}bi-no-print{% endif %}">
+    <div class="bi-grid" id="bi-widgets-grid">
+      {% for w in widgets %}
+      {% set wid = w.widget_id or w.id %}
+      {% set pos = layout_items.get(wid, {}) %}
+      <div class="bi-grid-item bi-widget loading bi-widget-enter" 
+           data-widget-id="{{ wid }}" 
+           data-dashboard-id="{{ internal_id }}" 
+           data-type="{{ w.type or 'table' }}"
+           data-config="{{ w.config_json or '{}' }}"
+           data-interaction="{{ w.interaction_json or '{}' }}"
+           style="grid-column: span {{ pos.w or 6 }}; grid-row: span {{ pos.h or 4 }};">
+        <div class="bi-widget-title">{{ w.title or wid or 'Widget' }}</div>
+        <div class="bi-widget-body"></div>
+      </div>
+      {% else %}
+      <p class="bi-empty-state" style="grid-column: 1/-1;">لا توجد عناصر في هذه اللوحة. استخدم «تحرير» لإضافة عناصر.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="bi-drill-modal" class="bi-modal" aria-hidden="true" style="display:none;">
+    <div class="bi-modal-backdrop"></div>
+    <div class="bi-modal-content bi-card">
+      <div class="bi-modal-header">
+        <h3 class="bi-modal-title">تفاصيل</h3>
+        <button type="button" class="bi-modal-close" aria-label="إغلاق">&times;</button>
+      </div>
+      <div class="bi-modal-body" id="bi-drill-modal-body"></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="{{ url_for('static', filename='bi/viewer.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var wrap = document.getElementById('bi-dashboard-wrap');
+    if (wrap && wrap.getAttribute('data-no-copy') === '1') {
+      wrap.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    }
+    if (typeof BIViewer !== 'undefined') {
+      BIViewer.init({ dashboardId: '{{ internal_id }}' });
+    }
+    var dupBtn = document.getElementById('bi-duplicate-btn');
+    if (dupBtn) {
+      dupBtn.addEventListener('click', function() {
+        fetch('{{ url_for("bi_duplicate", dash_id=internal_id) }}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+          .then(function(r) { return r.json(); })
+          .then(function(d) { if (d.url) window.location.href = d.url; else alert(d.error || 'فشل'); })
+          .catch(function() { alert('فشل النسخ'); });
+      });
+    }
+    var pngBtn = document.getElementById('bi-export-png-btn');
+    if (pngBtn) {
+      pngBtn.addEventListener('click', function() {
+        var grid = document.getElementById('bi-widgets-grid');
+        var canvas = grid ? grid.querySelector('canvas') : null;
+        if (!canvas) { alert('لا يوجد رسم لتصديره.'); return; }
+        var dataUrl = canvas.toDataURL('image/png');
+        fetch('{{ url_for("bi_export_png", dash_id=internal_id) }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataUrl })
+        }).then(function(r) {
+          if (!r.ok) throw new Error('فشل التصدير');
+          return r.blob();
+        }).then(function(blob) {
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'bi_chart_{{ internal_id }}.png';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }).catch(function() { alert('فشل التصدير.'); });
+      });
+    }
+  });
+</script>
+{% endblock %}

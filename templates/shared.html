@@ -1,0 +1,572 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+/* =========================
+   THEME
+========================= */
+:root{
+  --bg:#F6FAFF;
+  --card:#ffffff;
+  --ink:#0B1220;
+  --muted:#64748B;
+  --line:#E5EAF3;
+  --brand:#2F6AFF;
+  --brand2:#1f56d9;
+  --danger:#E11D48;
+  --ok:#16A34A;
+  --warn:#F59E0B;
+  --shadow: 0 10px 25px rgba(2,6,23,.08);
+  --radius:16px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:system-ui, "Segoe UI", Arial;
+  background: radial-gradient(1200px 600px at 80% 10%, rgba(47,106,255,.16), transparent 60%),
+              radial-gradient(900px 500px at 10% 85%, rgba(31,86,217,.10), transparent 60%),
+              var(--bg);
+  color:var(--ink);
+}
+a{ text-decoration:none; color:inherit; }
+button{ font-family:inherit; }
+
+.container{
+  display:flex;
+  min-height:100%;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar{
+  width:240px;
+  background:#fff;
+  border-left:1px solid var(--line);
+  padding:18px 16px;
+  position:fixed;
+  right:0;
+  top:0;
+  bottom:0;
+  overflow:auto;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px 14px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:14px;
+}
+.brand .logo{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  object-fit:cover;
+  box-shadow: var(--shadow);
+}
+
+.brand .t{
+  font-weight:900;
+  letter-spacing:.2px;
+}
+.brand .s{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.nav a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 10px;
+  border-radius:12px;
+  font-weight:800;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.nav a:hover{ background:#EEF3FF; }
+.nav a.active{
+  background:#EEF3FF;
+  color:var(--brand2);
+}
+
+.userbox{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+.userbox .u{
+  font-weight:900;
+}
+.userbox .m{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  border:1px solid var(--line);
+  background:#F8FAFF;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+/* =========================
+   MAIN
+========================= */
+.main{
+  flex:1;
+  margin-right:240px;
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+
+/* TOPBAR */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:rgba(255,255,255,.80);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.topbar .left{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.topbar .title{
+  font-weight:900;
+  font-size:16px;
+}
+.topbar .sub{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.topbar .right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.search{
+  width:320px;
+  max-width:48vw;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px 12px;
+}
+.search input{
+  border:none;
+  outline:none;
+  width:100%;
+  font-size:13px;
+  background:transparent;
+}
+.search .ic{ color:var(--muted); font-weight:900; }
+
+.btn{
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid transparent;
+  background:var(--brand);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s;
+}
+.btn:hover{ transform: translateY(-1px); }
+.btn:active{ transform: translateY(0px); }
+
+.btn.gray{
+  background:#fff;
+  color:var(--ink);
+  border-color: var(--line);
+}
+.btn.dark{ background:#0B1220; }
+.btn.red{ background:var(--danger); }
+.btn.small{
+  padding:8px 10px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.wrap{
+  max-width:1200px;
+  width:100%;
+  margin:0 auto;
+  padding:18px;
+}
+
+/* BREADCRUMB */
+.breadcrumb{
+  font-size:13px;
+  color:var(--muted);
+  margin:6px 0 14px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.breadcrumb a{
+  color:var(--brand2);
+  font-weight:900;
+}
+.sep{ color:#94a3b8; }
+
+/* ACTION ROW */
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:12px 0 18px;
+}
+.actions .hint{
+  font-size:12px;
+  color:var(--muted);
+  margin-right:auto;
+}
+
+/* SECTIONS */
+.section{
+  margin-top:18px;
+  margin-bottom:22px;
+}
+.section .h{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.section .h .t{
+  font-size:15px;
+  font-weight:1000;
+}
+.section .h .count{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:14px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow: 0 8px 20px rgba(2,6,23,.04);
+  transition:.15s;
+}
+.card:hover{ transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.card .top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.icon{
+  width:44px;height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:#EEF3FF;
+  color:var(--brand2);
+}
+.icon.file{ background:#F1F5F9; color:#334155; }
+
+.card .name{
+  font-weight:1000;
+  margin-top:10px;
+  line-height:1.25;
+  word-break:break-word;
+}
+.card .meta{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.tags{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.tag{
+  font-size:11px;
+  padding:4px 9px;
+  border-radius:999px;
+  font-weight:900;
+  border:1px solid var(--line);
+  background:#F8FAFF;
+  color:var(--muted);
+}
+.tag.viewer{ background:#F1F5F9; color:#475569; }
+.tag.editor{ background:#ECFEFF; color:#0E7490; }
+.tag.owner{ background:#DCFCE7; color:#166534; }
+
+.card .row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.card .row form{ margin:0; }
+.linkbtn{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.linkbtn:hover{ background:#F8FAFF; }
+.linkbtn.red{ border-color:#fecdd3; background:#fff1f2; color:#9f1239; }
+
+/* EMPTY */
+.empty{
+  padding:18px;
+  border:1px dashed #cbd5e1;
+  border-radius:16px;
+  background:rgba(255,255,255,.6);
+  color:var(--muted);
+  font-weight:800;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:999;
+}
+.modal.show{ display:flex; }
+.modal .box{
+  width:420px;
+  max-width:92vw;
+  background:#fff;
+  border-radius:18px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.modal .head{
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.modal .head h3{
+  margin:0;
+  font-size:15px;
+  font-weight:1000;
+}
+.modal .close{
+  border:none;
+  background:#fff;
+  font-size:18px;
+  cursor:pointer;
+  padding:6px 10px;
+  border-radius:12px;
+}
+.modal .close:hover{ background:#F1F5F9; }
+.modal .body{ padding:14px 16px; }
+.modal label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  margin:10px 0 6px;
+}
+.modal input, .modal select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  outline:none;
+  font-size:13px;
+}
+.modal input:focus, .modal select:focus{
+  border-color: rgba(47,106,255,.5);
+  box-shadow: 0 0 0 3px rgba(47,106,255,.12);
+}
+.modal .foot{
+  padding:14px 16px;
+  border-top:1px solid var(--line);
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+/* =========================
+   TOAST
+========================= */
+.toast{
+  position:fixed;
+  left:16px;
+  bottom:16px;
+  background:#0B1220;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:900;
+  font-size:13px;
+  box-shadow: var(--shadow);
+  display:none;
+  z-index:9999;
+}
+.toast.show{ display:block; }
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 900px){
+  .sidebar{ display:none; }
+  .main{ margin-right:0; }
+  .search{ width:100%; max-width:100%; }
+  .topbar{ gap:10px; flex-wrap:wrap; }
+  .topbar .right{ width:100%; justify-content:space-between; }
+}
+
+</style>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="left">
+        <div class="title"> المشتركة معي</div>
+        <div class="sub">ملفات ومجلدات تمت مشاركتها معك</div>
+      </div>
+      <div class="right">
+        <a href="{{ url_for('dashboard') }}" class="btn gray">← لوحة التحكم</a>
+      </div>
+    </div>
+
+    <div class="wrap">
+
+      <!-- FOLDERS -->
+      <div class="section">
+        <div class="h">
+          <div class="t"> المجلدات المشتركة</div>
+          <div class="count">{{ folders|length }} عنصر</div>
+        </div>
+
+        {% if folders|length == 0 %}
+          <div class="empty">لا توجد مجلدات مشتركة.</div>
+        {% else %}
+        <div class="grid">
+          {% for f in folders %}
+          <div class="card">
+            <div class="top">
+              <div class="icon">📁</div>
+              <div class="tags">
+                <span class="tag {{ f.role }}">{% if f.role == 'viewer' %}مشاهد{% elif f.role == 'editor' %}محرّر{% elif f.role == 'owner' %}مالك{% else %}{{ f.role }}{% endif %}</span>
+                {% if f.scope %}
+                  <span class="tag">{% if f.scope == 'file' %}ملف{% elif f.scope == 'folder' %}مجلد{% elif f.scope == 'recursive' %}متكرر{% else %}{{ f.scope }}{% endif %}</span>
+                {% endif %}
+                {% if f.expires_at %}
+                  <span class="tag">ينتهي: {{ f.expires_at }}</span>
+                {% endif %}
+                {% if f.owner %}
+                  <span class="tag">المشارك: {{ f.owner }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <a href="{{ url_for('open_folder', folder_id=f.folder_id) }}">
+              <div class="name">{{ f.name }}</div>
+              <div class="meta">{{ f.created_at }}</div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- FILES -->
+      <div class="section">
+        <div class="h">
+          <div class="t"> الملفات المشتركة</div>
+          <div class="count">{{ files|length }} عنصر</div>
+        </div>
+
+        {% if files|length == 0 %}
+          <div class="empty">لا توجد ملفات مشتركة.</div>
+        {% else %}
+        <div class="grid">
+          {% for f in files %}
+          <div class="card">
+            <div class="top">
+              <div class="icon file">📄</div>
+              <div class="tags">
+                <span class="tag {{ f.role }}">{% if f.role == 'viewer' %}مشاهد{% elif f.role == 'editor' %}محرّر{% elif f.role == 'owner' %}مالك{% else %}{{ f.role }}{% endif %}</span>
+                {% if f.scope %}
+                  <span class="tag">{% if f.scope == 'file' %}ملف{% elif f.scope == 'folder' %}مجلد{% elif f.scope == 'recursive' %}متكرر{% else %}{{ f.scope }}{% endif %}</span>
+                {% endif %}
+                {% if f.expires_at %}
+                  <span class="tag">ينتهي: {{ f.expires_at }}</span>
+                {% endif %}
+                {% if f.owner %}
+                  <span class="tag">المشارك: {{ f.owner }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <a href="{{ url_for('open_editor', file_id=f.file_id) }}">
+              <div class="name">{{ f.name }}</div>
+              <div class="meta">{{ f.created_at }}</div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </main>
+</div>
+{% endblock %}

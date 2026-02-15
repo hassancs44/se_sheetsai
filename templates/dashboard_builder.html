@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>استوديو اللوحات | سفنز درايف</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/theme.css">
+  <style>
+    :root{
+      --bg:#F6FAFF;
+      --card:#ffffff;
+      --ink:#0B1220;
+      --muted:#64748B;
+      --line:#E5EAF3;
+      --brand:#2F6AFF;
+      --brand2:#1f56d9;
+      --radius:16px;
+      --shadow:0 10px 25px rgba(2,6,23,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:system-ui,Segoe UI,Arial; background:var(--bg); color:var(--ink);}
+    .topbar{display:flex; justify-content:space-between; align-items:center; padding:16px; border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:5;}
+    .title h1{margin:0; font-size:16px;}
+    .title p{margin:6px 0 0; font-size:12px; color:var(--muted);}
+    .actions{display:flex; gap:8px; flex-wrap:wrap;}
+    .btn{padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; font-weight:900; cursor:pointer; text-decoration:none; color:inherit;}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; border:none;}
+    .layout{display:grid; grid-template-columns:260px 1fr 320px; gap:12px; padding:12px;}
+    .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px;}
+    .tabs{display:flex; gap:8px; margin-bottom:8px;}
+    .tab{padding:8px 10px; border-radius:999px; border:1px solid var(--line); background:#fff; font-weight:900; cursor:pointer; font-size:12px;}
+    .tab.active{background:#EEF3FF; border-color:#D9E3FF; color:var(--brand2);}
+    textarea{width:100%; min-height:420px; border-radius:12px; border:1px solid var(--line); padding:10px; font-family:Consolas,Monaco,monospace; font-size:12px;}
+    .small{font-size:12px; color:var(--muted);}
+    .status{font-size:12px; color:var(--brand2);}
+    .topbar{ flex-wrap: wrap; gap: 10px; }
+    @media(max-width:1000px){ .layout{grid-template-columns:1fr;} .topbar .actions{ width:100%; justify-content: flex-start; } }
+    @media(max-width:600px){ .topbar .title h1{ font-size:14px; } .topbar .title p{ display:none; } }
+    @media(min-width:1400px){ .layout{ max-width: 1400px; margin: 0 auto; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <img src="/static/7s.jpg" alt="سفنز درايف" class="brand-logo" style="width:36px;height:36px;object-fit:contain;border-radius:8px;flex-shrink:0">
+    <div class="title">
+      <h1>{{ dashboard.name }} — استوديو اللوحات</h1>
+      <p>واجهة التأليف الخاضعة للحوكمة. أي تعديل يتم حفظه في تعريف اللوحة (JSON).</p>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" onclick="publishDashboard()">نشر</button>
+      <button class="btn primary" type="button" onclick="saveDashboard()">حفظ</button>
+      <a class="btn" href="/data-panel/{{ dashboard.dashboard_id }}">عرض اللوحة</a>
+      <a class="btn" href="/dashboard-studio">رجوع</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('data', this)">البيانات</button>
+        <button class="tab" onclick="switchTab('model', this)">النموذج</button>
+        <button class="tab" onclick="switchTab('report', this)">التقرير</button>
+      </div>
+      <div id="tab-data">
+        <div class="small">مصادر البيانات والحقول ستظهر هنا.</div>
+      </div>
+      <div id="tab-model" style="display:none">
+        <div class="small">علاقات الجداول ستظهر هنا.</div>
+      </div>
+      <div id="tab-report" style="display:none">
+        <div class="small">المرئيات والسلايسرز ستظهر هنا.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="small">محرر تعريف اللوحة (JSON)</div>
+      <textarea id="definition">{{ definition_json }}</textarea>
+      <div class="status" id="saveStatus"></div>
+    </div>
+
+    <div class="panel">
+      <div class="small">تلميحات</div>
+      <ul class="small">
+        <li>عدل تعريف اللوحة واحفظه لتحديث نموذج البيانات.</li>
+        <li>استخدم واجهة العرض للتحقق من النتائج.</li>
+        <li>سيتم تطوير واجهة الرسم والتخصيص لاحقًا دون كسر أي لوحات.</li>
+      </ul>
+    </div>
+  </div>
+
+<script>
+  function switchTab(name, btn){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    ["data","model","report"].forEach(x=>{
+      const el = document.getElementById("tab-"+x);
+      if(el) el.style.display = (x === name) ? "" : "none";
+    });
+  }
+
+  async function saveDashboard(){
+    const status = document.getElementById("saveStatus");
+    status.textContent = "جارٍ الحفظ...";
+    let body = {};
+    try{
+      body = { definition_json: JSON.parse(document.getElementById("definition").value) };
+    }catch(e){
+      status.textContent = "تعذر قراءة JSON. تحقق من الصيغة.";
+      return;
+    }
+    const res = await fetch("/api/dashboards/{{ dashboard.dashboard_id }}", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    status.textContent = res.ok ? "تم الحفظ" : "فشل الحفظ";
+  }
+
+  async function publishDashboard(){
+    const status = document.getElementById("saveStatus");
+    status.textContent = "جارٍ النشر...";
+    const res = await fetch("/api/dashboards/{{ dashboard.dashboard_id }}/publish", { method: "POST" });
+    status.textContent = res.ok ? "تم النشر" : "فشل النشر";
+  }
+</script>
+</body>
+</html>

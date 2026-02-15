@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: sheetsai_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: sheetsai_bi
+      POSTGRES_USER: sheetsai_user
+      POSTGRES_PASSWORD: strongpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sheetsai_user -d sheetsai_bi"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres_data:

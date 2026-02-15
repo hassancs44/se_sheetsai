@@ -1,0 +1,86 @@
+/**
+ * SE_SHEETSAI — BI Theme System
+ * CSS variables for light/dark/custom. Theme stored in bi_dashboards.theme_json.
+ */
+:root,
+[data-bi-theme="light"] {
+  --bi-primary: #2563eb;
+  --bi-secondary: #64748b;
+  --bi-background: #f8fafc;
+  --bi-card-bg: #ffffff;
+  --bi-text-color: #0f172a;
+  --bi-text-muted: #64748b;
+  --bi-accent: #3b82f6;
+  --bi-danger: #dc2626;
+  --bi-success: #16a34a;
+  --bi-warning: #d97706;
+  --bi-border: #e2e8f0;
+  --bi-border-focus: #2563eb;
+  --bi-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --bi-shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --bi-radius: 12px;
+  --bi-radius-sm: 8px;
+  --bi-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+[data-bi-theme="dark"] {
+  --bi-primary: #3b82f6;
+  --bi-secondary: #94a3b8;
+  --bi-background: #0f172a;
+  --bi-card-bg: #1e293b;
+  --bi-text-color: #f1f5f9;
+  --bi-text-muted: #94a3b8;
+  --bi-accent: #60a5fa;
+  --bi-danger: #f87171;
+  --bi-success: #4ade80;
+  --bi-warning: #fbbf24;
+  --bi-border: #334155;
+  --bi-border-focus: #60a5fa;
+  --bi-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --bi-shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+  --bi-radius: 12px;
+  --bi-radius-sm: 8px;
+  --bi-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Custom theme overlay: applied when theme_json provides values */
+.bi-dashboard-wrap {
+  font-family: var(--bi-font);
+  background: var(--bi-background);
+  color: var(--bi-text-color);
+  min-height: 100%;
+}
+
+.bi-dashboard-wrap .bi-card {
+  background: var(--bi-card-bg);
+  border: 1px solid var(--bi-border);
+  border-radius: var(--bi-radius);
+  box-shadow: var(--bi-shadow);
+}
+
+.bi-dashboard-wrap .bi-btn-primary {
+  background: var(--bi-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--bi-radius-sm);
+}
+
+.bi-dashboard-wrap .bi-btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.bi-dashboard-wrap .bi-text-muted {
+  color: var(--bi-text-muted);
+}
+
+.bi-dashboard-wrap a.bi-link {
+  color: var(--bi-accent);
+}
+
+.bi-dashboard-wrap .bi-danger {
+  color: var(--bi-danger);
+}
+
+.bi-dashboard-wrap .bi-success {
+  color: var(--bi-success);
+}

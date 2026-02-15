@@ -1,0 +1,265 @@
+{% extends "layout.html" %}
+{% block content %}
+<script src="{{ onlyoffice_server }}/web-apps/apps/api/documents/api.js"></script>
+<style>
+:root{
+  --bg:#F3F6FB;
+  --bar:#0B1220;
+  --card:#FFFFFF;
+  --ink:#0F172A;
+  --muted:#64748B;
+  --brand:#2F6AFF;
+  --brand2:#1F5CE6;
+  --line:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  height:100%;
+  width:100%;
+  overflow:hidden;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  display:flex;
+}
+.app{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  width:100%;
+  background:var(--bg);
+}
+.topbar{
+  height:56px;
+  background:linear-gradient(135deg,#0B1220,#111827);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+  z-index:10;
+}
+.topbar .left{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.topbar .right{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:13px; color:#CBD5E1; }
+.topbar .back{
+  text-decoration:none;
+  color:#E5EDFF;
+  font-weight:700;
+  font-size:14px;
+}
+.topbar .back:hover{ text-decoration:underline; }
+.sheet-name{ font-size:15px; font-weight:800; }
+.topbar .btn-link{
+  padding:6px 12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.15);
+  color:#E5EDFF;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+}
+.topbar .btn-link:hover{ background:rgba(255,255,255,.25); }
+.bi-badge,.bi-sync-time{ font-size:12px; color:#94A3B8; margin-right:8px; }
+.editor-wrap{ flex:1; background:#fff; position:relative; }
+#editor{ position:absolute; inset:0; }
+.watermark{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:.08;
+  font-size:42px;
+  font-weight:900;
+  transform:rotate(-20deg);
+  color:#0B1220;
+  text-align:center;
+  white-space:pre-wrap;
+}
+.oo-download,.oo-print,
+button[data-action="download"],button[data-action="print"],
+button[data-action="save-as"],button[data-action="export"],
+[data-id="download"],[data-id="print"],[data-id="save-as"],[data-id="export"]{
+  display:none !important;
+}
+.save-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  color:#fff;font-size:18px;font-weight:700;
+}
+.save-overlay.hidden{ display:none; }
+@media (max-width: 768px) {
+  .topbar{ flex-wrap: wrap; height: auto; min-height: 56px; padding: 10px 12px; gap: 8px; }
+  .topbar .left{ width: 100%; }
+  .topbar .right{ width: 100%; justify-content: flex-start; }
+  .sheet-name{ font-size: 13px; }
+  .topbar .btn-link{ padding: 6px 10px; font-size: 12px; }
+}
+@media (min-width: 1920px) { .app{ max-width: 100%; } }
+</style>
+
+<div id="save-overlay" class="save-overlay hidden">
+  <div>جارٍ حفظ الملف...</div>
+  <div style="margin-top:12px;font-size:14px;opacity:.8;">الرجاء الانتظار</div>
+</div>
+<div class="app">
+  <div class="topbar">
+    <div class="left">
+      <a class="back safe-exit" href="{{ url_for('dashboard') }}" data-redirect="{{ url_for('dashboard') }}">← العودة إلى الأقراص</a>
+      {% if folder_id %}
+        <a class="back safe-exit" href="{{ url_for('open_folder', folder_id=folder_id) }}" data-redirect="{{ url_for('open_folder', folder_id=folder_id) }}">← العودة إلى المجلد</a>
+      {% endif %}
+      {% if file_dashboard %}
+        <span class="bi-badge" title="لوحة البيانات مرتبطة">📊 لوحة مرتبطة</span>
+        {% if file_dashboard.updated_at %}<span class="bi-sync-time" title="آخر مزامنة">آخر مزامنة: {{ file_dashboard.updated_at }}</span>{% endif %}
+        <a class="btn-link" href="{{ url_for('bi_dashboard_view', internal_id=file_dashboard.internal_id) }}">عرض لوحة البيانات</a>
+        {% if can_edit_bi %}
+        <a class="btn-link" href="{{ url_for('bi_studio_dashboard', internal_id=file_dashboard.internal_id) }}">تحرير لوحة البيانات</a>
+        <form method="POST" action="{{ url_for('bi_resync_s2', internal_id=file_dashboard.internal_id) }}" style="display:inline;">
+          <button type="submit" class="btn-link">🔄 إعادة مزامنة البيانات</button>
+        </form>
+        {% endif %}
+      {% elif can_access_bi and file_id %}
+        <form method="POST" action="{{ url_for('bi_create_from_file_s2', file_id=file_id) }}" style="display:inline;">
+          <button type="submit" class="btn-link">📊 إنشاء لوحة بيانات من هذا الملف</button>
+        </form>
+      {% endif %}
+      {% if '.xlsx' in (sheet_name or '')|lower or '.xls' in (sheet_name or '')|lower %}
+        {% if folder_id %}
+          <a class="btn-link safe-exit" href="{{ url_for('open_folder', folder_id=folder_id) }}?openLinks={{ file_id }}" data-redirect="{{ url_for('open_folder', folder_id=folder_id) }}?openLinks={{ file_id }}" title="ربط الملفات الرئيسية والفرعية — صب البيانات في الملف الرئيسي">🔗 ربط الملفات</a>
+        {% else %}
+          <a class="btn-link safe-exit" href="{{ url_for('dashboard') }}?openLinks={{ file_id }}" data-redirect="{{ url_for('dashboard') }}?openLinks={{ file_id }}" title="ربط الملفات الرئيسية والفرعية — صب البيانات في الملف الرئيسي">🔗 ربط الملفات</a>
+        {% endif %}
+      {% endif %}
+      <span class="sheet-name">{{ sheet_name }}</span>
+    </div>
+    <div class="right">
+      <span>وضع التحرير</span>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    {% if watermark_text %}
+      <div class="watermark">{{ watermark_text }}</div>
+    {% endif %}
+    <div id="editor"></div>
+  </div>
+</div>
+
+<script>
+  const editorConfig = {{ config | tojson | safe }};
+  const EDITOR_FILE_ID = {{ file_id | tojson }};
+  const INITIAL_LAST_SAVED_AT = {{ (initial_last_saved_at or "") | tojson }};
+  const SAVE_PENDING_KEY = "save_pending_" + EDITOR_FILE_ID;
+  const SAVE_POLL_MS = 300;
+  const SAVE_WAIT_TIMEOUT_MS = 5000;
+
+  var lastRefreshKey = (editorConfig.document && editorConfig.document.key) || "";
+  editorConfig.events = editorConfig.events || {};
+  function doRefreshFile() {
+    const ed = window.docEditor;
+    if (!ed || typeof ed.refreshFile !== "function") return;
+    fetch("/api/files/" + EDITOR_FILE_ID + "/editor-config", { credentials: "same-origin" })
+      .then(function(r) {
+        if (r.redirected || r.status === 302) return Promise.reject("session");
+        return r.ok ? r.json() : Promise.reject("config");
+      })
+      .then(function(cfg) {
+        var newKey = (cfg.document && cfg.document.key) || "";
+        if (newKey && newKey !== lastRefreshKey) {
+          lastRefreshKey = newKey;
+          ed.refreshFile(cfg);
+        }
+      })
+      .catch(function() {});
+  }
+  editorConfig.events.onOutdatedVersion = doRefreshFile;
+  editorConfig.events.onRequestRefreshFile = doRefreshFile;
+
+  function showSaveOverlay(show) {
+    var el = document.getElementById("save-overlay");
+    if (el) el.classList.toggle("hidden", !show);
+  }
+  function fetchSaveState() {
+    return fetch("/api/files/" + EDITOR_FILE_ID + "/save-state", { credentials: "same-origin" })
+      .then(function(r) { return r.ok ? r.json() : null; });
+  }
+  function waitForSaveAck() {
+    return new Promise(function(resolve) {
+      var baseline = INITIAL_LAST_SAVED_AT;
+      var deadline = Date.now() + SAVE_WAIT_TIMEOUT_MS;
+      function poll() {
+        if (Date.now() > deadline) { resolve(); return; }
+        fetchSaveState().then(function(data) {
+          if (data && data.last_saved_at && String(data.last_saved_at) !== String(baseline)) {
+            resolve();
+            return;
+          }
+          setTimeout(poll, SAVE_POLL_MS);
+        }).catch(function() { setTimeout(poll, SAVE_POLL_MS); });
+      }
+      poll();
+    });
+  }
+  async function safeExitToDashboard(e, redirectUrl) {
+    e.preventDefault();
+    try { localStorage.setItem(SAVE_PENDING_KEY, String(Date.now())); } catch (z) {}
+    showSaveOverlay(true);
+    try {
+      if (window.docEditor && typeof window.docEditor.requestClose === "function") {
+        try { window.docEditor.requestClose(); } catch (err) {}
+      }
+      await waitForSaveAck();
+    } finally {
+      try { localStorage.removeItem(SAVE_PENDING_KEY); } catch (z) {}
+      window.location.href = redirectUrl;
+    }
+  }
+  function waitForPendingSaveBeforeInit() {
+    return new Promise(function(resolve) {
+      try {
+        var ts = localStorage.getItem(SAVE_PENDING_KEY);
+        if (!ts || (Date.now() - parseInt(ts, 10)) > 10000) { resolve(); return; }
+      } catch (z) { resolve(); return; }
+      var baseline = INITIAL_LAST_SAVED_AT;
+      var deadline = Date.now() + 5000;
+      function poll() {
+        if (Date.now() > deadline) { resolve(); return; }
+        fetchSaveState().then(function(data) {
+          if (data && data.last_saved_at && String(data.last_saved_at) !== String(baseline)) {
+            try { localStorage.removeItem(SAVE_PENDING_KEY); } catch (z) {}
+            resolve();
+            return;
+          }
+          setTimeout(poll, SAVE_POLL_MS);
+        }).catch(function() { setTimeout(poll, SAVE_POLL_MS); });
+      }
+      poll();
+    });
+  }
+  function initEditor() {
+    const docEditor = new DocsAPI.DocEditor("editor", editorConfig);
+    window.docEditor = docEditor;
+  }
+  document.querySelectorAll(".safe-exit").forEach(function(a) {
+    a.addEventListener("click", function(e) {
+      safeExitToDashboard(e, a.getAttribute("data-redirect") || "/dashboard");
+    });
+  });
+  document.addEventListener("click", function(e) {
+    var a = e.target && (e.target.closest ? e.target.closest("a") : e.target);
+    if (!a || !a.href) return;
+    var href = (a.getAttribute("href") || a.href || "").split("#")[0];
+    var navAway = href.indexOf("/dashboard") !== -1 || href.indexOf("/folder/") !== -1 ||
+      href.indexOf("/shared") !== -1 || href.indexOf("/trash") !== -1;
+    if (navAway && window.docEditor && !a.classList.contains("safe-exit")) {
+      e.preventDefault();
+      var url = href.indexOf("http") === 0 ? href : (href.startsWith("/") ? href : "/dashboard");
+      safeExitToDashboard(e, url);
+    }
+  }, true);
+  waitForPendingSaveBeforeInit().then(initEditor);
+</script>
+{% endblock %}
