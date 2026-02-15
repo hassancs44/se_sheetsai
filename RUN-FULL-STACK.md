@@ -75,9 +75,10 @@ docker compose -f docker-compose.full-stack.yml up -d --build
 copy .env.example .env
 ```
 
-عند التشغيل بـ `docker-compose.full-stack.yml`، التطبيق يستخدم داخلياً:
+عند التشغيل بـ `docker-compose.full-stack.yml`، **OnlyOffice إجباري** ويُشغّل من نفس السيرفر:
 
 - `BASE_URL=http://app:5000` (للاستدعاء من OnlyOffice)
 - `ONLYOFFICE_SERVER=http://onlyoffice:80`
+- `ONLYOFFICE_REQUIRED=true` — التطبيق لا يبدأ إلا بعد جاهزية خادم OnlyOffice
 
 لا حاجة لتغييرها في `.env` للتشغيل المحلي الكامل.

@@ -33,6 +33,7 @@ from config import (
     ONLYOFFICE_SERVER,
     ONLYOFFICE_JWT_SECRET,
     ONLYOFFICE_JWT_ALG,
+    ONLYOFFICE_REQUIRED,
     SHEETS_DIR,
     LOGS_DIR,
     BASE_URL,
@@ -91,6 +92,15 @@ APP_RUN_ID = datetime.now().strftime("%Y%m%d%H%M%S")
 
 # ================= INIT =================
 init_db()
+
+# OnlyOffice إجباري: لا يبدأ التطبيق إلا إذا كان الخادم مضبوطاً
+if ONLYOFFICE_REQUIRED and not (ONLYOFFICE_SERVER or "").strip():
+    import sys
+    logging.critical(
+        "ONLYOFFICE_REQUIRED=true لكن ONLYOFFICE_SERVER غير مضبوط. "
+        "يجب تكوين وتشغيل خادم OnlyOffice (ONLYOFFICE_SERVER و ONLYOFFICE_JWT_SECRET) ثم إعادة التشغيل."
+    )
+    sys.exit(1)
 
 # مزامنة المستخدمين من Excel تُنفَّذ مرة واحدة فقط (بقفل ملف) لتجنب database is locked مع عدة workers
 _excel_sync_done = False
@@ -1217,7 +1227,7 @@ def open_editor(file_id):
             abort(403)
 
         f = dict(f)
-        # عند عدم وجود OnlyOffice (مثل Render المجاني): عرض صفحة توضيحية بدل كسر الصفحة
+        # عند عدم وجود OnlyOffice: عرض صفحة توضيحية (إن كان إجباريّاً لا نعرض معاينة)
         if not (ONLYOFFICE_SERVER or "").strip():
             return render_template(
                 "sheet_editor.html",
@@ -1231,6 +1241,7 @@ def open_editor(file_id):
                 can_access_bi=can_access_bi(),
                 initial_last_saved_at=f.get("updated_at") or "",
                 editor_unavailable=True,
+                onlyoffice_required=ONLYOFFICE_REQUIRED,
             )
 
         try:
@@ -1249,6 +1260,7 @@ def open_editor(file_id):
                 can_access_bi=can_access_bi(),
                 initial_last_saved_at=f.get("updated_at") or "",
                 editor_unavailable=True,
+                onlyoffice_required=ONLYOFFICE_REQUIRED,
             )
 
         if access.get("owner") != session["user"]:
@@ -1293,6 +1305,7 @@ def open_editor(file_id):
             can_access_bi=can_access_bi(),
             initial_last_saved_at=f.get("updated_at") or "",
             editor_unavailable=False,
+            onlyoffice_required=ONLYOFFICE_REQUIRED,
         )
     except Exception as e:
         logging.exception("open_editor %s: %s", file_id, e)
