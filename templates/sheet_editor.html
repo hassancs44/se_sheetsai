@@ -145,15 +145,9 @@ button[data-action="save-as"],button[data-action="export"],
   <div class="editor-wrap">
     {% if editor_unavailable | default(false) %}
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:var(--muted);">
-        {% if onlyoffice_required | default(false) %}
-        <p style="font-size:18px;font-weight:700;color:var(--ink);margin:0 0 12px;">OnlyOffice إجباري على هذا السيرفر</p>
-        <p style="margin:0 0 16px;">يجب على المسؤول تكوين وتشغيل خادم OnlyOffice (ONLYOFFICE_SERVER و ONLYOFFICE_JWT_SECRET) ثم إعادة تشغيل التطبيق. التحرير ومعاينة الملف غير متاحين حتى يتم الضبط.</p>
-        <a href="{{ url_for('dashboard') }}" class="btn-link" style="display:inline-block;padding:10px 16px;">العودة إلى الأقراص</a>
-        {% else %}
         <p style="font-size:18px;font-weight:700;color:var(--ink);margin:0 0 12px;">التحرير غير متاح على هذا السيرفر</p>
         <p style="margin:0 0 16px;">لم يتم تكوين خادم OnlyOffice. يمكنك عرض الملفات والتنقل في الأقراص.</p>
         <a href="{{ url_for('preview', file_id=file_id) }}" class="btn-link" style="display:inline-block;padding:10px 16px;">معاينة الملف</a>
-        {% endif %}
       </div>
     {% else %}
     {% if watermark_text %}

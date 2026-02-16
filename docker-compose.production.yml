@@ -13,7 +13,6 @@ services:
     environment:
       - BASE_URL=${BASE_URL:-https://your-domain.com}
       - ONLYOFFICE_SERVER=${ONLYOFFICE_SERVER:-http://onlyoffice:80}
-      - ONLYOFFICE_REQUIRED=${ONLYOFFICE_REQUIRED:-true}
       - DB_PATH=/app/state/database.db
       - DB_FALLBACK_PATH=/app/state/database_runtime.db
       - BI_RUNTIME_ENGINE=postgres
@@ -35,8 +34,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      onlyoffice:
-        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -44,7 +41,7 @@ services:
       retries: 3
       start_period: 20s
 
-  # OnlyOffice Document Server — إجباري مع هذا الـ stack (ONLYOFFICE_REQUIRED=true)
+  # OnlyOffice Document Server (optional — for in-browser editing)
   # Use same JWT secret in .env (ONLYOFFICE_JWT_SECRET). When running here, set ONLYOFFICE_SERVER=http://onlyoffice:80
   onlyoffice:
     image: onlyoffice/documentserver:latest

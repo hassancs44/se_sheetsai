@@ -17,8 +17,6 @@ DB_FALLBACK_PATH = os.getenv("DB_FALLBACK_PATH", os.path.join(BASE_DIR, "databas
 ONLYOFFICE_SERVER = os.getenv("ONLYOFFICE_SERVER", "http://localhost:8082")
 ONLYOFFICE_JWT_SECRET = os.getenv("ONLYOFFICE_JWT_SECRET", "ONLYOFFICE_SECRET")
 ONLYOFFICE_JWT_ALG = "HS256"
-# عند true: التطبيق لا يبدأ إلا إذا كان ONLYOFFICE_SERVER مضبوطاً (OnlyOffice إجباري وتشغيله من السيرفر)
-ONLYOFFICE_REQUIRED = os.getenv("ONLYOFFICE_REQUIRED", "false").lower() == "true"
 BASE_URL = os.getenv("BASE_URL", "http://host.docker.internal:5000")
 
 # ===== Paths =====

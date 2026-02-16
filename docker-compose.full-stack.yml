@@ -2,7 +2,6 @@
 # التشغيل: من مجلد المشروع نفّذ أولاً: .\scripts\ensure-dirs.ps1
 # ثم: docker compose -f docker-compose.full-stack.yml up -d
 #
-# OnlyOffice إجباري: التطبيق يعتمد على خادم OnlyOffice ويشغّله من نفس الـ stack.
 # كل البيانات والتشغيل تحت نفس المسار (المشروع + البيانات).
 
 services:
@@ -16,7 +15,6 @@ services:
       # من داخل Docker يستدعي OnlyOffice التطبيق على اسم الخدمة
       - BASE_URL=${BASE_URL:-http://app:5000}
       - ONLYOFFICE_SERVER=http://onlyoffice:80
-      - ONLYOFFICE_REQUIRED=true
       - DB_PATH=/app/state/database.db
       - DB_FALLBACK_PATH=/app/state/database_runtime.db
       - BI_RUNTIME_ENGINE=${BI_RUNTIME_ENGINE:-sqlite}
@@ -55,7 +53,7 @@ services:
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-ONLYOFFICE_SECRET}
       - JWT_HEADER=Authorization
     ports:
-      - "8083:80"
+      - "8082:80"
     volumes:
       - ./onlyoffice_data:/var/www/onlyoffice/Data
       - ./onlyoffice_logs:/var/log/onlyoffice
